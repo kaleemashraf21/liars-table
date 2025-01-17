@@ -41,7 +41,7 @@ export const SignUpScreen = ({ navigation }: { navigation: any }) => {
             Alert.alert(
               "User Created",
               "Your account has been created successfully!",
-              [{ text: "OK", onPress: () => router.push("/signIn") }]
+              [{ text: "OK", onPress: () => router.push("/signin") }]
             );
           }
         }
@@ -51,7 +51,7 @@ export const SignUpScreen = ({ navigation }: { navigation: any }) => {
             "This email is already in use. Please choose a different email."
           );
         } else {
-          console.log(err)
+          console.log(err);
           setError("An error occurred. Please try again.");
         }
       } finally {
