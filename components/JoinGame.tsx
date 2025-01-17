@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import { UserContext } from "../Contexts/UserContexts";
 import { auth } from "../firebaseConfig";
-import { socket } from "./socketConfig"; // Assuming socket is configured properly
+import { socket } from "./socketConfig";
 import { ScrollView } from "react-native-gesture-handler";
 import { router } from "expo-router";
 
@@ -15,6 +15,7 @@ const JoinGame = () => {
   }
 
   const { user, setUser } = userContext;
+  console.log(" in join game component.");
 
   // Listen for activeRooms event after socket connection
   useEffect(() => {
@@ -28,10 +29,34 @@ const JoinGame = () => {
   }, []);
 
   const handleLogOut = async () => {
+    socket.disconnect();
     await auth.signOut();
     setUser(null);
     router.push("/signin");
   };
+
+  const handleRefresh = () => {
+    console.log("Requesting active rooms from server...");
+    socket.emit("requestActiveRooms");
+  };
+
+  useEffect(() => {
+    console.log("Socket connected status:", socket.connected);
+
+    if (socket.connected) {
+      socket.emit("requestActiveRooms");
+      console.log("Requesting rooms...");
+    }
+
+    socket.on("activeRooms", (availableRooms: []) => {
+      console.log("Received activeRooms:", availableRooms);
+      setRoomList(availableRooms);
+    });
+
+    return () => {
+      socket.off("activeRooms");
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -66,6 +91,7 @@ const JoinGame = () => {
           router.push("/home");
         }}
       />
+      <Button title="refresh lobby" onPress={handleRefresh} />
     </View>
   );
 };

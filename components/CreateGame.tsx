@@ -14,17 +14,21 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
     throw new Error("UserContext is undefined");
   }
 
+  console.log("in create game");
   const { user, setUser } = userContext;
 
   const handleSubmit = async () => {
     const room = { password: password, roomName: roomName };
-    socket.emit("createRoom", room);
+    console.log("Submitting createRoom request with data:", room);
+    socket.emit("createRoom", room, (response: any) => {
+      console.log("Server response to createRoom:", response);
+    });
     setPassword("");
     setRoomName("");
   };
 
   const handleJoinGames = async () => {
-    router.push("/joingame");
+    router.push("/creategame");
   };
 
   const handleLogOut = async () => {
@@ -52,12 +56,7 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
           router.push("/home");
         }}
       />
-      <Button
-        title="back to join"
-        onPress={() => {
-          handleJoinGames;
-        }}
-      />
+      <Button title="back to join" onPress={handleJoinGames} />
     </View>
   );
 };
