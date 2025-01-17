@@ -1,4 +1,4 @@
-import { drawCard} from "../api";
+
 import React, { useState } from "react";
 
 import Animated, {

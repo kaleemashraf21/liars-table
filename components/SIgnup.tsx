@@ -51,6 +51,7 @@ export const SignUpScreen = ({ navigation }: { navigation: any }) => {
             "This email is already in use. Please choose a different email."
           );
         } else {
+          console.log(err)
           setError("An error occurred. Please try again.");
         }
       } finally {
