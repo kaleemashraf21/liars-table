@@ -4,13 +4,16 @@ import { UserContext } from "../Contexts/UserContexts"; // Import UserContext
 import { auth } from "@/firebaseConfig";
 import { router } from "expo-router";
 
-
 const HomeScreen = ({ navigation }: { navigation: any }) => {
   const userContext = useContext(UserContext); // Access user from context
   if (!userContext) {
     throw new Error("UserContext is undefined");
   }
   const { user, setUser } = userContext; // Destructure user from context
+
+  const handleJoinGame = async () => {
+    router.push("/joingame");
+  };
   const handleLogOut = async () => {
     await auth.signOut(); // Firebase sign-out
     setUser(null); // Clear user context
@@ -23,6 +26,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
       </Text>
       <Text>You're now logged in to Liar's Table.</Text>
       <Button title="Log Out" onPress={handleLogOut} />
+      <Button title="Create Game" onPress={handleJoinGame} />
     </View>
   );
 };

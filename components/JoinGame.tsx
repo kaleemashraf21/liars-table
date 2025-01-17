@@ -37,7 +37,7 @@ const JoinGame = () => {
     <View style={styles.container}>
       <View style={styles.games}>
         <Text>Games Options</Text>
-        <ScrollView>
+        {/* <ScrollView>
           {roomList.map((room: any, index: number) => {
             return (
               <View style={styles.room} key={index}>
@@ -48,7 +48,7 @@ const JoinGame = () => {
               </View>
             );
           })}
-        </ScrollView>
+        </ScrollView> */}
       </View>
 
       <Text>Join a Game</Text>

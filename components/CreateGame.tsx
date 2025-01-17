@@ -1,8 +1,7 @@
 import React, { useContext, useState } from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
+import { View, Text, Button, StyleSheet, TextInput } from "react-native";
 import { UserContext } from "../Contexts/UserContexts";
 import { auth } from "../firebaseConfig";
-import { TextInput } from "react-native-gesture-handler";
 import { socket } from "./socketConfig";
 import { router } from "expo-router";
 
@@ -25,7 +24,7 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
   };
 
   const handleJoinGames = async () => {
-    router.push("/creategame");
+    router.push("/joingame");
   };
 
   const handleLogOut = async () => {
