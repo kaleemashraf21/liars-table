@@ -33,6 +33,10 @@ const JoinGame = () => {
     router.push("/signin");
   };
 
+  const handleGameArea = async () => {
+    router.push("/Pages/Game");
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.games}>
@@ -58,7 +62,7 @@ const JoinGame = () => {
           router.push("/creategame");
         }}
       />
-
+      <Button title="Taiga Testing Stuff" onPress={handleGameArea} />
       <Button title="Log Out" onPress={handleLogOut} />
       <Button
         title="Home"
