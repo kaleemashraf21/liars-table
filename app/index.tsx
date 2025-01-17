@@ -9,22 +9,29 @@ import { registerRootComponent } from 'expo'
 
 const Stack = createStackNavigator();
 
-export default function App() {
-  return (
+// export default function App() {
+//   return (
     
-    <NavigationContainer>
-      <UserProvider>
+//     <NavigationContainer>
+//       <UserProvider>
 
-      <Stack.Navigator initialRouteName="Signin">
-        <Stack.Screen name="Signin" component={SignInScreen} />
-        <Stack.Screen name="Signup" component={SignUpScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-      </Stack.Navigator>
-      </UserProvider>
-    </NavigationContainer>
+//       <Stack.Navigator initialRouteName="Signin">
+//         <Stack.Screen name="Signin" component={SignInScreen} />
+//         <Stack.Screen name="Signup" component={SignUpScreen} />
+//         <Stack.Screen name="Home" component={HomeScreen} />
+//       </Stack.Navigator>
+//       </UserProvider>
+//     </NavigationContainer>
  
     
-  );
+//   );
+// }
+
+import { Redirect } from 'expo-router';
+
+export default function Index() {
+  // Redirect to signin screen
+  return <Redirect href="/signin" />;
 }
 
 const styles = StyleSheet.create({
@@ -46,4 +53,4 @@ const styles = StyleSheet.create({
   },
 });
 
-registerRootComponent(App);
+

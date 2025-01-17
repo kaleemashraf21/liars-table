@@ -11,6 +11,10 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebaseConfig";
 import { fetchUserByEmail } from "./api"; // Import fetchUserByEmail
 import { UserContext } from "../Contexts/UserContexts";// Import UserContext
+import { router } from 'expo-router';
+
+
+
 const SignInScreen = ({ navigation }: { navigation: any }) => {
   const userContext = useContext(UserContext); // Access UserContext
   if (!userContext) {
@@ -31,7 +35,7 @@ const SignInScreen = ({ navigation }: { navigation: any }) => {
       console.log("User data:", user); // Log the user data
       // Set user in context and navigate to Home screen
       setUser(user);
-      navigation.navigate("Home");
+      router.push("/home");
     } catch (err: any) {
       setError("Incorrect email or password"); // Set error message if login fails
       console.error(err); // Log the error for debugging
@@ -63,7 +67,7 @@ const SignInScreen = ({ navigation }: { navigation: any }) => {
       )}
       <Button
         title="Don't have an account? Sign Up"
-        onPress={() => navigation.navigate("Signup")}
+        onPress={() => router.push("/signup")}
       />
     </View>
   );

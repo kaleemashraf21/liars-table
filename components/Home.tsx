@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import { UserContext } from "../Contexts/UserContexts"; // Import UserContext
 import { auth } from "@/firebaseConfig";
+import { Router } from "expo-router";
 
 
 const HomeScreen = ({ navigation }: { navigation: any }) => {
@@ -13,7 +14,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
   const handleLogOut = async () => {
     await auth.signOut(); // Firebase sign-out
     setUser(null); // Clear user context
-    navigation.navigate("Signin"); // Navigate to SignIn screen
+    router.push("/signin"); // Navigate to SignIn screen
   };
   return (
     <View style={styles.container}>

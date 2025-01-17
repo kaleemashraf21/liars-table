@@ -11,6 +11,7 @@ import {
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebaseConfig";
 import { createUser } from "./api";
+import { router } from "expo-router";
 
 export const SignUpScreen = ({ navigation }: { navigation: any }) => {
   const [email, setEmail] = useState("");
@@ -40,7 +41,7 @@ export const SignUpScreen = ({ navigation }: { navigation: any }) => {
             Alert.alert(
               "User Created",
               "Your account has been created successfully!",
-              [{ text: "OK", onPress: () => navigation.navigate("SignIn") }]
+              [{ text: "OK", onPress: () => router.push("/signIn") }]
             );
           }
         }
@@ -89,7 +90,7 @@ export const SignUpScreen = ({ navigation }: { navigation: any }) => {
       )}
       <Button
         title="Already have an account? Sign In"
-        onPress={() => navigation.navigate("SignIn")}
+        onPress={() => router.push("/signin")}
       />
     </View>
   );
