@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import { UserContext } from "../Contexts/UserContexts"; // Import UserContext
 import { auth } from "@/firebaseConfig";
-import { Router } from "expo-router";
+import { router } from "expo-router";
 
 
 const HomeScreen = ({ navigation }: { navigation: any }) => {
