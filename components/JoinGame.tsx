@@ -34,29 +34,9 @@ const JoinGame = () => {
     setUser(null);
     router.push("/signin");
   };
-
-  const handleRefresh = () => {
-    console.log("Requesting active rooms from server...");
-    socket.emit("requestActiveRooms");
-  };
-
-  useEffect(() => {
-    console.log("Socket connected status:", socket.connected);
-
-    if (socket.connected) {
-      socket.emit("requestActiveRooms");
-      console.log("Requesting rooms...");
-    }
-
-    socket.on("activeRooms", (availableRooms: []) => {
-      console.log("Received activeRooms:", availableRooms);
-      setRoomList(availableRooms);
-    });
-
-    return () => {
-      socket.off("activeRooms");
-    };
-  }, []);
+  const handleGameArea = async () => {
+    router.push("/Pages/Game");
+  }
 
   return (
     <View style={styles.container}>
@@ -83,7 +63,7 @@ const JoinGame = () => {
           router.push("/creategame");
         }}
       />
-
+      <Button title="Taiga Testing Stuff" onPress={handleGameArea} />
       <Button title="Log Out" onPress={handleLogOut} />
       <Button
         title="Home"
