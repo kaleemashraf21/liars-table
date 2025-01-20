@@ -38,11 +38,32 @@ const JoinGame = () => {
     router.push("/Pages/Game");
   }
 
+  const handleRefresh = () => {
+    console.log("Requesting active rooms from server...");
+    socket.emit("requestActiveRooms");
+  };
+
+
+  useEffect(() => {
+    console.log("Socket connected status:", socket.connected);
+    if (socket.connected) {
+      socket.emit("requestActiveRooms");
+      console.log("Requesting rooms...");
+    }
+    socket.on("activeRooms", (availableRooms: []) => {
+      console.log("Received activeRooms:", availableRooms);
+      setRoomList(availableRooms);
+    });
+    return () => {
+      socket.off("activeRooms");
+    };
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.games}>
         <Text>Games Options</Text>
-        {/* <ScrollView>
+        <ScrollView>
           {roomList.map((room: any, index: number) => {
             return (
               <View style={styles.room} key={index}>
@@ -53,7 +74,7 @@ const JoinGame = () => {
               </View>
             );
           })}
-        </ScrollView> */}
+        </ScrollView>
       </View>
 
       <Text>Join a Game</Text>
