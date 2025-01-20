@@ -1,7 +1,7 @@
-const io = require("socket.io-client");
+const {io} = require("socket.io-client");
 
 const connectionOptions = { transports: ["websocket"], autoConnect: false };
-export const socket = io("http://192.168.31.61:8080", connectionOptions); // replace ip address
+export const Socket = io("http://192.168.31.61:8080", connectionOptions); // replace ip address
 // const URL =
 //   process.env.NODE_ENV === "production" ? undefined : "http://localhost:8080";
 // export const socket = io(URL, {
@@ -9,16 +9,16 @@ export const socket = io("http://192.168.31.61:8080", connectionOptions); // rep
 //   transports: ["websocket", "polling"],
 // });
 
-socket.connect();
+Socket.connect();
 
-socket.on("connect", () => {
-  console.log("Socket connected successfully", socket.id);
+Socket.on("connect", () => {
+  console.log("Socket connected successfully", Socket.id);
 });
 
-socket.on("connect_error", (error: []) => {
+Socket.on("connect_error", (error: any) => {
   console.log("Socket connection error:", error);
 });
 
-socket.on("disconnect", () => {
+Socket.on("disconnect", () => {
   console.log("Socket disconnected");
 });

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, Dimensions} from 'react-native';
-import createSocket from '../utils/socket';
+import { Socket } from './socketConfig';
 import {Players} from '../@types/players';
 import {DrawButton} from './DrawCard';
 import { DeckArea } from './DeckArea';
@@ -32,7 +32,7 @@ const PlayingTable: React.FC = () => {
   });
 
   useEffect(() => {
-    const socket = createSocket();
+    const socket = Socket();
 
     socket.on('updatePlayers', (updatedPlayers: Players) => {
       setPlayers(updatedPlayers);

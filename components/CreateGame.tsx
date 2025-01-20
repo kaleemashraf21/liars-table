@@ -28,7 +28,7 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
   };
 
   const handleJoinGames = async () => {
-    router.push("/creategame");
+    router.push("/joingame");
   };
 
   const handleLogOut = async () => {
