@@ -10,10 +10,9 @@ import {
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebaseConfig";
 import { fetchUserByEmail } from "./api"; // Import fetchUserByEmail
-import { UserContext } from "../Contexts/UserContexts";// Import UserContext
-import { router } from 'expo-router';
-
-
+import { UserContext } from "../Contexts/UserContexts"; // Import UserContext
+import { router } from "expo-router";
+import { socket } from "./socketConfig";
 
 const SignInScreen = ({ navigation }: { navigation: any }) => {
   const userContext = useContext(UserContext); // Access UserContext
@@ -32,15 +31,19 @@ const SignInScreen = ({ navigation }: { navigation: any }) => {
       await signInWithEmailAndPassword(auth, email, password);
       // Fetch user data by email
       const user = await fetchUserByEmail(email);
-      console.log("User data:", user); // Log the user data
+      console.log("User data:", user);
+
+      // Connect socket after successful authentication
+      socket.connect();
+
       // Set user in context and navigate to Home screen
       setUser(user);
       router.push("/home");
     } catch (err: any) {
-      setError("Incorrect email or password"); // Set error message if login fails
-      console.error(err); // Log the error for debugging
+      setError("Incorrect email or password");
+      console.error(err);
     } finally {
-      setLoading(false); // Hide loading spinner after the operation completes
+      setLoading(false);
     }
   };
   return (
