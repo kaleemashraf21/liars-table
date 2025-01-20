@@ -24,7 +24,6 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
       <Text style={styles.welcome}>
         Welcome{user ? `, ${user.username}` : ""}!
       </Text>
-      <Text>You're now logged in to Liar's Table.</Text>
       <Button title="Log Out" onPress={handleLogOut} />
       <Button title="Create Game" onPress={handleJoinGame} />
     </View>

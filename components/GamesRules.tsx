@@ -1,3 +1,4 @@
+import React from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 const GameRules = () => {
   return (
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
     textAlign: "justify",
   },
   bulletPoints: {
-    marginLeft: 20, // Indent bullet points
+    marginLeft: 20,
   },
   bulletPoint: {
     fontSize: 16,
@@ -73,5 +74,4 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
 });
-
 export default GameRules;

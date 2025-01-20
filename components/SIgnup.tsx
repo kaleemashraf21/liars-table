@@ -16,54 +16,58 @@ import { router } from "expo-router";
 export const SignUpScreen = ({ navigation }: { navigation: any }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState("");
   const avatar =
     "https://icons.veryicon.com/png/o/miscellaneous/rookie-official-icon-gallery/225-default-avatar.png";
+
   const handleSignUp = async () => {
-    if (email && password && username) {
-      setLoading(true);
-      try {
-        // Try to create the user in Firebase
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-        const currentUser = userCredential.user;
-        if (currentUser) {
-          // Once Firebase user is created, proceed to create the user in the backend
-          const idToken = await currentUser.getIdToken();
-          // Use the createUser function from api.ts to create the user in the backend
-          const response = await createUser(email, username, avatar, idToken);
-          if (response) {
-            Alert.alert(
-              "User Created",
-              "Your account has been created successfully!",
-              [{ text: "OK", onPress: () => router.push("/signin") }]
-            );
-          }
-        }
-      } catch (err: any) {
-        if (err.code === "auth/email-already-in-use") {
-          setError(
-            "This email is already in use. Please choose a different email."
+    if (!email || !password || !username) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const currentUser = userCredential.user;
+
+      if (currentUser) {
+        const idToken = await currentUser.getIdToken();
+        const response = await createUser(email, username, avatar, idToken);
+
+        if (response) {
+          Alert.alert(
+            "Account Created",
+            "Your account has been successfully created!",
+            [{ text: "OK", onPress: () => router.push("/signin") }]
           );
-        } else {
-          console.log(err);
-          setError("An error occurred. Please try again.");
         }
-      } finally {
-        setLoading(false);
       }
-    } else {
-      setError("Please complete all relevant fields.");
+    } catch (err: any) {
+      if (err.code === "auth/email-already-in-use") {
+        setError("This email is already in use.");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Invalid email address.");
+      } else if (err.code === "auth/weak-password") {
+        setError("Password should be at least 6 characters.");
+      } else {
+        setError("An error occurred.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create Your Account</Text>
+
       <TextInput
         placeholder="Email"
         value={email}
@@ -96,15 +100,33 @@ export const SignUpScreen = ({ navigation }: { navigation: any }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 16 },
-  title: { fontSize: 24, marginBottom: 20, textAlign: "center" },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 16,
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#000",
+  },
   input: {
     height: 40,
     borderColor: "gray",
     borderWidth: 1,
     marginBottom: 12,
     paddingHorizontal: 8,
+    borderRadius: 4,
+    backgroundColor: "#fff",
+    width: "100%",
   },
-  error: { color: "red", marginBottom: 12 },
+  error: {
+    color: "red",
+    marginBottom: 12,
+    textAlign: "center",
+  },
 });
