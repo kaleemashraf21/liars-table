@@ -1,7 +1,7 @@
 const { io } = require("socket.io-client");
 
 const connectionOptions = { transports: ["websocket"], autoConnect: false };
-export const Socket = io("https://liars-table-fe.onrender.com", connectionOptions); // replace ip address
+export const Socket = io("https://liars-table-be.onrender.com", connectionOptions); // replace ip address
 
 // http://172.21.88.100
 
