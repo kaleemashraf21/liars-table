@@ -7,7 +7,7 @@ const cardApi = axios.create({
 
 let deck_id = ""
 export const getNewDeck = () => {
-    return cardApi.get(`/api/deck/new`).then(({data})=>{
+    return cardApi.get(`/api/deck/new/shuffle/?deck_count=1`).then(({data})=>{
         deck_id = data.deck_id
         console.log(deck_id)
         return data;
@@ -31,6 +31,8 @@ export const addToPile = (pile_name: string, cards: any) => {
     
     return cardApi.get(`api/deck/${deck_id}/pile/${pile_name}/add/?cards=${cards}`)
 }
+
+
 
 const api = axios.create({
     baseURL: "https://liars-table-be.onrender.com/api",

@@ -41,7 +41,7 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
           setRoomName("");
 
           // Navigate to game board
-          router.push("/Pages/Game");
+          router.push("/Game");
         } else {
           Alert.alert("Error", response.message);
         }

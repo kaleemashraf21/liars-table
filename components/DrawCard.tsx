@@ -12,7 +12,7 @@ export const DrawButton: React.FC = () => {
     const { addCard } = useContext(HandContext);
   
     const handlePress =() => {
-
+            
         let number = 2
             drawCard(number).then((data)=>{
                     addCard(data)
@@ -25,7 +25,7 @@ export const DrawButton: React.FC = () => {
     return (
     <View>
         
-        <Button title="draw 2 cards" onPress={handlePress}/>
+        <Button title="Start" onPress={handlePress}/>
         {/* <DisplayCards/> */}
 
     </View>
