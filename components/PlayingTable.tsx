@@ -32,14 +32,13 @@ const PlayingTable: React.FC = () => {
   });
 
   useEffect(() => {
-    const socket = Socket();
 
-    socket.on('updatePlayers', (updatedPlayers: Players) => {
+    Socket.on('updatePlayers', (updatedPlayers: Players) => {
       setPlayers(updatedPlayers);
     });
 
     return () => {
-      socket.disconnect();
+      Socket.disconnect();
     };
   }, []);
 

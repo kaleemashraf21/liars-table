@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import { UserContext } from "../Contexts/UserContexts";
 import { auth } from "../firebaseConfig";
-import { socket } from "./socketConfig";
+import { Socket } from "./socketConfig";
 import { ScrollView } from "react-native-gesture-handler";
 import { router } from "expo-router";
 
@@ -19,17 +19,17 @@ const JoinGame = () => {
 
   // Listen for activeRooms event after socket connection
   useEffect(() => {
-    socket.on("activeRooms", (availableRooms: []) => {
+    Socket.on("activeRooms", (availableRooms: []) => {
       setRoomList(availableRooms); // Update room list when activeRooms is emitted
     });
 
     return () => {
-      socket.off("activeRooms");
+      Socket.off("activeRooms");
     };
   }, []);
 
   const handleLogOut = async () => {
-    socket.disconnect();
+    Socket.disconnect();
     await auth.signOut();
     setUser(null);
     router.push("/signin");
@@ -40,22 +40,22 @@ const JoinGame = () => {
 
   const handleRefresh = () => {
     console.log("Requesting active rooms from server...");
-    socket.emit("requestActiveRooms");
+    Socket.emit("requestActiveRooms");
   };
 
 
   useEffect(() => {
-    console.log("Socket connected status:", socket.connected);
-    if (socket.connected) {
-      socket.emit("requestActiveRooms");
+    console.log("Socket connected status:", Socket.connected);
+    if (Socket.connected) {
+      Socket.emit("requestActiveRooms");
       console.log("Requesting rooms...");
     }
-    socket.on("activeRooms", (availableRooms: []) => {
+    Socket.on("activeRooms", (availableRooms: []) => {
       console.log("Received activeRooms:", availableRooms);
       setRoomList(availableRooms);
     });
     return () => {
-      socket.off("activeRooms");
+      Socket.off("activeRooms");
     };
   }, []);
 

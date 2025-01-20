@@ -12,7 +12,7 @@ import { auth } from "@/firebaseConfig";
 import { fetchUserByEmail } from "./api"; // Import fetchUserByEmail
 import { UserContext } from "../Contexts/UserContexts"; // Import UserContext
 import { router } from "expo-router";
-import { socket } from "./socketConfig";
+import { Socket } from "./socketConfig";
 
 const SignInScreen = ({ navigation }: { navigation: any }) => {
   const userContext = useContext(UserContext); // Access UserContext
@@ -34,7 +34,7 @@ const SignInScreen = ({ navigation }: { navigation: any }) => {
       console.log("User data:", user);
 
       // Connect socket after successful authentication
-      socket.connect();
+      Socket.connect();
 
       // Set user in context and navigate to Home screen
       setUser(user);
