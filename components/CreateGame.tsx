@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { View, Text, Button, StyleSheet, TextInput } from "react-native";
+import { View, Text, Button, StyleSheet, TextInput, Alert } from "react-native";
 import { UserContext } from "../Contexts/UserContexts";
 import { auth } from "../firebaseConfig";
 import { Socket } from "./socketConfig";
@@ -8,26 +8,48 @@ import { router } from "expo-router";
 export const CreateGame = ({ navigation }: { navigation: any }) => {
   const [password, setPassword] = useState("");
   const [roomName, setRoomName] = useState("");
-  const userContext = useContext(UserContext);
+  const [isLoading, setIsLoading] = useState(false);
 
+  const userContext = useContext(UserContext);
   if (!userContext) {
     throw new Error("UserContext is undefined");
   }
 
-  console.log("in create game");
   const { user, setUser } = userContext;
 
   const handleSubmit = async () => {
-    const room = { password: password, roomName: roomName };
+    if (!roomName.trim()) {
+      Alert.alert("Error", "Room name is required");
+      return;
+    }
+
+    setIsLoading(true);
+    const room = { password: password, roomName: roomName.trim() };
+
     console.log("Submitting createRoom request with data:", room);
-    Socket.emit("createRoom", room, (response: any) => {
-      console.log("Server response to createRoom:", response);
-    });
-    setPassword("");
-    setRoomName("");
+
+    Socket.emit(
+      "createRoom",
+      room,
+      (response: { success: boolean; message: string }) => {
+        console.log("Server response to createRoom:", response);
+        setIsLoading(false);
+
+        if (response.success) {
+          // Clear form
+          setPassword("");
+          setRoomName("");
+
+          // Navigate to game board
+          router.push("/Pages/Game");
+        } else {
+          Alert.alert("Error", response.message);
+        }
+      }
+    );
   };
 
-  const handleJoinGames = async () => {
+  const handleJoinGames = () => {
     router.push("/joingame");
   };
 
@@ -38,25 +60,57 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
   };
 
   return (
-    <View>
+    <View style={styles.container}>
       <TextInput
-        placeholder="password (optional)"
-        value={password}
-        onChangeText={setPassword}
-      />
-      <TextInput
-        placeholder="roomName"
+        style={styles.input}
+        placeholder="Room Name (required)"
         value={roomName}
         onChangeText={setRoomName}
+        editable={!isLoading}
       />
-      <Button title="submit form" onPress={handleSubmit} />
-      <Button
-        title="Home"
-        onPress={() => {
-          router.push("/home");
-        }}
+      <TextInput
+        style={styles.input}
+        placeholder="Password (optional)"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        editable={!isLoading}
       />
-      <Button title="back to join" onPress={handleJoinGames} />
+      <View style={styles.buttonContainer}>
+        <Button
+          title={isLoading ? "Creating..." : "Create Room"}
+          onPress={handleSubmit}
+          disabled={isLoading}
+        />
+        <Button
+          title="Join Existing Room"
+          onPress={handleJoinGames}
+          disabled={isLoading}
+        />
+        <Button
+          title="Back to Home"
+          onPress={() => router.push("/home")}
+          disabled={isLoading}
+        />
+      </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    flex: 1,
+  },
+  input: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  buttonContainer: {
+    gap: 10,
+  },
+});
