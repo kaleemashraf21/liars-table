@@ -59,7 +59,7 @@ const JoinGame = () => {
   const attemptJoinRoom = (roomName: string, password: string | null) => {
     Socket.emit("joinRoom", roomName, password, (response: any) => {
       if (response.success) {
-        router.push("/Pages/Game");
+        router.push("/Game");
       } else {
         console.error("Failed to join room:", response.message);
         alert(response.message);

@@ -13,7 +13,7 @@ import { Players } from "../@types/players";
 import { DrawButton } from "./DrawCard";
 import { DeckArea } from "./DeckArea";
 import { PlayerHand } from "./PlayerHand";
-import GameRules from "../components/GameRules"; // Import GameRules component
+import GameRules from "./GamesRules"; // Import GameRules component
 import Icon from "react-native-vector-icons/FontAwesome"; // Icon library
 
 const { width, height } = Dimensions.get("window");
