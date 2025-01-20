@@ -9,43 +9,56 @@ import {
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebaseConfig";
-import { fetchUserByEmail } from "./api"; // Import fetchUserByEmail
-import { UserContext } from "../Contexts/UserContexts"; // Import UserContext
+import { fetchUserByEmail } from "./api";
+import { UserContext } from "../Contexts/UserContexts";
 import { router } from "expo-router";
 import { Socket } from "./socketConfig";
 
-const SignInScreen = ({ navigation }: { navigation: any }) => {
-  const userContext = useContext(UserContext); // Access UserContext
-  if (!userContext) {
-    throw new Error("User does not exist");
-  }
+const SignInScreen = () => {
+  const userContext = useContext(UserContext);
+  if (!userContext) throw new Error("User does not exist");
+
   const { setUser } = userContext;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
   const handleSignIn = async () => {
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
+    }
+
     setLoading(true);
     try {
-      // Sign in with Firebase Authentication
       await signInWithEmailAndPassword(auth, email, password);
-      // Fetch user data by email
       const user = await fetchUserByEmail(email);
       console.log("User data:", user);
 
-      // Connect socket after successful authentication
-      Socket.connect();
+      try {
+        Socket.connect();
+      } catch (socketError) {
+        setError(
+          "There was an issue connecting to the server. Please try again."
+        );
+        return;
+      }
 
-      // Set user in context and navigate to Home screen
       setUser(user);
       router.push("/home");
     } catch (err: any) {
-      setError("Incorrect email or password");
-      console.error(err);
+      if (err.code === "auth/invalid-credential") {
+        setError("Incorrect password or email. Please try again.");
+        console.log(err);
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Liar's Table</Text>
@@ -54,6 +67,7 @@ const SignInScreen = ({ navigation }: { navigation: any }) => {
         value={email}
         onChangeText={setEmail}
         style={styles.input}
+        keyboardType="email-address"
       />
       <TextInput
         placeholder="Password"
@@ -66,7 +80,7 @@ const SignInScreen = ({ navigation }: { navigation: any }) => {
       {loading ? (
         <ActivityIndicator size="large" color="#0000FF" />
       ) : (
-        <Button title="Sign In" onPress={handleSignIn} />
+        <Button title="Sign In" onPress={handleSignIn} disabled={loading} />
       )}
       <Button
         title="Don't have an account? Sign Up"
@@ -75,16 +89,30 @@ const SignInScreen = ({ navigation }: { navigation: any }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 16 },
-  title: { fontSize: 24, marginBottom: 20, textAlign: "center" },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 16,
+    backgroundColor: "#f7f7f7",
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
   input: {
     height: 40,
     borderColor: "gray",
     borderWidth: 1,
     marginBottom: 12,
     paddingHorizontal: 8,
+    borderRadius: 4,
+    backgroundColor: "#fff",
   },
-  error: { color: "red", marginBottom: 12 },
+  error: { color: "red", marginBottom: 12, textAlign: "center" },
 });
+
 export default SignInScreen;
