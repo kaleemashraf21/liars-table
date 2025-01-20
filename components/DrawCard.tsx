@@ -16,6 +16,7 @@ export const DrawButton: React.FC = () => {
         let number = 2
             drawCard(number).then((data)=>{
                     addCard(data)
+                    
             })
 
     }

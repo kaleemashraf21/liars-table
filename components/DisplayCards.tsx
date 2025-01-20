@@ -2,7 +2,7 @@
 import React from "react";
 
 import {Image, View, Text, Pressable, TouchableOpacity, StyleSheet} from "react-native"
-import { useContext} from "react";
+import { useContext, useEffect} from "react";
 import { HandContext } from "../Contexts/PlayerHandContext";
 
 import { DraggableCard } from "../utils/Draggable";
@@ -12,15 +12,17 @@ import { DraggableCard } from "../utils/Draggable";
 export const DisplayCards: React.FC = () => {
   const { hand } = useContext(HandContext)
 
-
-
-
+  const cards = hand.cards
+  useEffect(() => {
+    console.log('Hand value changed:', hand)
+  }, [hand])
+ 
   return (
 
     <View>
 
-    {hand.map((element, index) => (
-      
+    {cards.map((element, index) => (
+     
       <DraggableCard 
         key={index}
         initialPostion={{ x: -190 + (index * 15), y: -100}}
