@@ -12,7 +12,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
   }
   const { user, setUser } = userContext; // Destructure user from context
 
-  const [buttonPressed, setButtonPressed] = useState(false); // Track if button is pressed
+  const [isLogoutVisible, setIsLogoutVisible] = useState(false); // State to control visibility of logout
 
   const handleJoinGame = async () => {
     router.push("/joingame");
@@ -24,13 +24,29 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
     router.push("/signin"); // Navigate to SignIn screen
   };
 
+  const toggleLogoutVisibility = () => {
+    setIsLogoutVisible((prevState) => !prevState); // Toggle visibility of the logout section
+  };
+
   return (
     <View style={styles.container}>
-      {/* Log Out Button with Icon and Text */}
-      <TouchableOpacity onPress={handleLogOut} style={styles.logoutButton}>
-        <Ionicons name="log-out-outline" size={30} color="#9C1C1C" />
-        <Text style={styles.logoutText}>Log Out</Text>
+      {/* User Avatar */}
+      <TouchableOpacity
+        style={styles.avatarContainer}
+        onPress={toggleLogoutVisibility}
+      >
+        <Ionicons name="person-circle-outline" size={60} color="#333" />
       </TouchableOpacity>
+
+      {/* Log Out Icon and Text, only visible when isLogoutVisible is true */}
+      {isLogoutVisible && (
+        <View style={styles.logoutContainer}>
+          <TouchableOpacity onPress={handleLogOut} style={styles.logoutItem}>
+            <Ionicons name="log-out-outline" size={24} color="#9C1C1C" />
+            <Text style={styles.logoutText}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Welcome back message with user's name */}
       <Text style={styles.title}>Welcome Back!</Text>
@@ -38,9 +54,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 
       {/* Button to create a game */}
       <TouchableOpacity
-        style={[styles.createGameButton, buttonPressed && styles.buttonPressed]} // Apply hover effect
-        onPressIn={() => setButtonPressed(true)} // Activate button press state
-        onPressOut={() => setButtonPressed(false)} // Deactivate on press release
+        style={styles.createGameButton}
         onPress={handleJoinGame}
       >
         <Text style={styles.buttonText}>Create Game</Text>
@@ -57,32 +71,43 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#f7f7f7", // Ensure background is consistent
   },
+  avatarContainer: {
+    position: "absolute",
+    top: 20,
+    right: 14,
+    backgroundColor: "transparent",
+    padding: 10,
+  },
+  logoutContainer: {
+    position: "absolute",
+    top: 85, // Position logout section below avatar
+    right: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 6,
+  },
+  logoutItem: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  logoutText: {
+    color: "#9C1C1C",
+    fontSize: 16, // Smaller text size for logout text
+    fontWeight: "bold",
+    marginLeft: 10, // Space between the icon and the text
+  },
   title: {
-    fontSize: 48, // Increased title size
+    fontSize: 50, // Larger title
     fontFamily: "Vanilla-Whale", // Set custom font for the title
     marginBottom: 10,
     color: "#333", // Set text color for contrast
   },
   username: {
-    fontSize: 48,
+    fontSize: 50,
     fontFamily: "Vanilla-Whale", // Custom font for username
     fontWeight: "bold",
     color: "#333", // Ensure visibility against background
     marginBottom: 40, // Space before the game button
-  },
-  logoutButton: {
-    position: "absolute",
-    top: 20,
-    right: 16,
-    alignItems: "center", // Align icon and text vertically
-    backgroundColor: "transparent", // Transparent background
-    padding: 10,
-  },
-  logoutText: {
-    color: "#9C1C1C", // Text color for the "Log Out" label
-    fontSize: 12,
-    fontWeight: "bold",
-    marginTop: 4, // Space between the icon and the text
   },
   createGameButton: {
     backgroundColor: "#d2692f", // Using the same color theme
@@ -93,9 +118,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 20, // Space between username and button
     elevation: 3, // Slight shadow for better visibility
-  },
-  buttonPressed: {
-    opacity: 0.7, // Simulate hover effect
   },
   buttonText: {
     color: "#fff",
