@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
     top: height - 300,
     left: 0,
     right: 0,
-    height: 150, // 20% of screen height
+    height: 150,
     justifyContent: "center",
     backgroundColor: "purple",
     alignItems: "center",

@@ -44,9 +44,6 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
         <Ionicons name="person-circle-outline" size={60} color="#333" />
       </TouchableOpacity>
       
-       
-
-
       {/* Log Out Icon and Text, only visible when isLogoutVisible is true */}
       {isLogoutVisible && (
         <View style={styles.logoutContainer}>

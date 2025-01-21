@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import { UserProvider } from "@/Contexts/UserContexts";
-import { MenuProvider } from 'react-native-popup-menu';
+import { MenuProvider } from "react-native-popup-menu";
 
 export default function Layout() {
   return (
@@ -24,15 +24,21 @@ export default function Layout() {
             headerShown: false,
           }}
         />
-        <MenuProvider>
         <Stack.Screen
-          name="home"
+          name="Game"
           options={{
             headerShown: false,
-            headerBackVisible: false,
-            gestureEnabled: false,
           }}
         />
+        <MenuProvider>
+          <Stack.Screen
+            name="home"
+            options={{
+              headerShown: false,
+              headerBackVisible: false,
+              gestureEnabled: false,
+            }}
+          />
         </MenuProvider>
       </Stack>
     </UserProvider>

@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { Image, Button, View } from "react-native";
 import { useContext } from "react";
-import { DisplayCards } from "./DisplayCards";
 import { Card, Cards } from "../@types/playerHand";
 import { UserContext } from "../Contexts/UserContexts";
 import { User } from "../Contexts/UserContexts";
@@ -63,7 +62,6 @@ export const DrawButton: React.FC = () => {
     <View>
         {inProgress === false ? <Button title="Start" onPress={handlePress} /> : null}
         {inProgress === true ? <Button title="Reset Game" onPress={handleEndGame} /> : null}    
-      <DisplayCards/>
     </View>
   );
 };

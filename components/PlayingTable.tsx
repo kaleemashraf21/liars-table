@@ -12,12 +12,11 @@ import { Socket } from "./socketConfig";
 import { Players } from "../@types/players";
 import { DrawButton } from "./DrawCard";
 import { DeckArea } from "./DeckArea";
-import { PlayerHand } from "./PlayerHand";
-import GameRules from "./GamesRules"; // Import GameRules component
-import Icon from "react-native-vector-icons/FontAwesome"; // Icon library
-import { routeToScreen } from "expo-router/build/useScreens";
+import GameRules from "./GamesRules";
+import Icon from "react-native-vector-icons/FontAwesome";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { router } from "expo-router";
-// import {faDoorOpen} from 
+import { PlayerHand } from "./PlayerHand";
 
 const { width, height } = Dimensions.get("window");
 type Position = "top" | "left" | "right" | "bottom";
@@ -38,21 +37,21 @@ const PlayerSlot: React.FC<{ position: Position; name: string }> = ({
 
 const PlayingTable: React.FC = () => {
   const [players, setPlayers] = useState<Players>({
-    top: "Top...",
-    left: "Left.....",
-    right: "Right....",
-    bottom: "Bottom...",
+    top: "Player 3",
+    left: "Player 2",
+    right: "Player 4",
+    bottom: "Player 1",
   });
 
-  const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
-
+  // info button
+  const [modalVisible, setModalVisible] = useState(false);
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);
 
   const leaveRoom = () => {
-    Socket.emit("leaveRoom")
-    router.push("/joingame")
-  }
+    Socket.emit("leaveRoom");
+    router.push("/joingame");
+  };
 
   useEffect(() => {
     Socket.on("updatePlayers", (updatedPlayers: Players) => {
@@ -82,7 +81,7 @@ const PlayingTable: React.FC = () => {
       <View style={styles.bottom}>
         <PlayerSlot position="bottom" name={players.bottom} />
       </View>
-      {/* <PlayerHand /> */}
+      <PlayerHand />
 
       {/* Information Icon for Rules */}
       <TouchableOpacity style={styles.infoButton} onPress={showModal}>
@@ -90,7 +89,7 @@ const PlayingTable: React.FC = () => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.leaveRoomButton} onPress={leaveRoom}>
-        <Icon name="fa-door-open" size={30} color="white" />
+            <Ionicons name="log-out-outline" size={24} />
       </TouchableOpacity>
 
       {/* Modal for Game Rules */}

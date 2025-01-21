@@ -4,7 +4,6 @@ import {useState} from "react"
 import {Image, Button, View, Dimensions, StyleSheet, SafeAreaView} from "react-native"
 import { HandContext } from "../Contexts/PlayerHandContext";
 import { useContext } from "react";
-import { DisplayCards } from "./DisplayCards";
 import { Card, Cards} from "../@types/playerHand";
 import DragDropDemo from "./DragDrop";
 
