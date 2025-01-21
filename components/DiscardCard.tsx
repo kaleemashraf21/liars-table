@@ -1,4 +1,4 @@
-import { addToPile } from "./api";
+// import { addToPile } from "./api";
 import React, { useEffect } from "react";
 import {useState} from "react"
 import {Image, Button, View, Dimensions, StyleSheet, SafeAreaView} from "react-native"
@@ -14,7 +14,7 @@ export const DiscardPile: React.FC = () => {
     const discard = "discard"
     const [cardsToDiscard, setCardsToDiscard] = useState<string[]>([])
 
-    addToPile(discard, cardsToDiscard)
+    // addToPile(discard, cardsToDiscard)
 
 
     

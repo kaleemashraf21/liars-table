@@ -34,6 +34,7 @@ const SignInScreen = () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       const user = await fetchUserByEmail(email);
+      user.hand = []
       console.log("User data:", user);
 
       try {
@@ -44,6 +45,7 @@ const SignInScreen = () => {
         );
         return;
       }
+
 
       setUser(user);
       router.push("/home");

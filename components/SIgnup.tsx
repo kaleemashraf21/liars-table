@@ -19,6 +19,7 @@ export const SignUpScreen = ({ navigation }: { navigation: any }) => {
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const hand: any = []
   const avatar =
     "https://icons.veryicon.com/png/o/miscellaneous/rookie-official-icon-gallery/225-default-avatar.png";
 
@@ -39,7 +40,7 @@ export const SignUpScreen = ({ navigation }: { navigation: any }) => {
 
       if (currentUser) {
         const idToken = await currentUser.getIdToken();
-        const response = await createUser(email, username, avatar, idToken);
+        const response = await createUser(email, username, avatar, idToken, hand);
 
         if (response) {
           Alert.alert(
