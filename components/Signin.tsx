@@ -11,14 +11,19 @@ import {
   Modal,
 } from "react-native";
 import { useFonts } from "expo-font";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 import { auth } from "@/firebaseConfig";
-import { fetchUserByEmail } from "./api";
+import { fetchUserByEmail, createUser } from "./api";
 import { UserContext } from "../Contexts/UserContexts";
 import { router } from "expo-router";
 import { Socket } from "./socketConfig";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { createUser } from "./api";
+
+// Default avatar image URL
+const avatar =
+  "https://icons.veryicon.com/png/o/miscellaneous/rookie-official-icon-gallery/225-default-avatar.png";
 
 const SignInScreen = () => {
   const [isLoaded] = useFonts({
@@ -26,21 +31,40 @@ const SignInScreen = () => {
   });
 
   const userContext = useContext(UserContext);
-  if (!userContext) throw new Error("User does not exist");
+  if (!userContext) {
+    throw new Error("User does not exist");
+  }
 
   const { setUser } = userContext;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
-  const showModal = () => setModalVisible(true);
-  const hideModal = () => setModalVisible(false);
 
+  // Modal control
+  const showModal = () => {
+    setError("");
+    setEmail("");
+    setPassword("");
+    setUsername("");
+    setModalVisible(true);
+  };
+
+  const hideModal = () => {
+    setError("");
+    setEmail("");
+    setPassword("");
+    setUsername("");
+    setModalVisible(false);
+  };
+
+  // Sign-in handler
   const handleSignIn = async () => {
+    setError("");
     if (!email || !password) {
-      setError("Please enter both email and password.");
+      setError("Please fill in all required fields.");
       return;
     }
 
@@ -61,39 +85,22 @@ const SignInScreen = () => {
 
       setUser(user);
       router.push("/home");
-    } catch (err: any) {
-      if (err.code === "auth/invalid-credential") {
-        setError("Incorrect password or email. Please try again.");
-        console.log(err);
-      } else {
-        setError("An error occurred. Please try again.");
-      }
+    } catch (err) {
+      console.log(err);
+      handleAuthError(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Display loading indicator if fonts are not loaded yet
-  if (!isLoaded) {
-    return <ActivityIndicator size="large" color="#0000FF" />;
-  }
-
-  const avatar =
-    "https://icons.veryicon.com/png/o/miscellaneous/rookie-official-icon-gallery/225-default-avatar.png";
-
-  const handleOkay = () => {
-    hideModal();
-    setEmail("");
-    setPassword("");
-    setUsername("");
-    setError("");
-  };
-
+  // Sign-up handler
   const handleSignUp = async () => {
+    setError("");
     if (!email || !password || !username) {
       setError("Please fill in all fields.");
       return;
     }
+
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -111,24 +118,57 @@ const SignInScreen = () => {
           Alert.alert(
             "Account Created",
             "Your account has been successfully created!",
-            [{ text: "OK", onPress: () => handleOkay() }]
+            [{ text: "OK", onPress: handleOkay }]
           );
         }
       }
-    } catch (err: any) {
-      if (err.code === "auth/email-already-in-use") {
-        setError("This email is already in use.");
-      } else if (err.code === "auth/invalid-email") {
-        setError("Invalid email address.");
-      } else if (err.code === "auth/weak-password") {
-        setError("Password should be at least 6 characters.");
-      } else {
-        setError("An error occurred.");
-      }
+    } catch (err) {
+      handleAuthError(err);
     } finally {
       setLoading(false);
     }
   };
+
+  // Handle common Firebase authentication errors
+  const handleAuthError = (err: any) => {
+    switch (err.code) {
+      case "auth/email-already-in-use":
+        setError("This email is already registered. Try logging in.");
+        break;
+      case "auth/invalid-email":
+        setError("Please enter a valid email address.");
+        break;
+      case "auth/weak-password":
+        setError("Your password must be at least 6 characters long.");
+        break;
+      case "auth/wrong-password":
+        setError("Incorrect password. Please try again.");
+        break;
+      case "auth/invalid-credential":
+        setError("The email or password you entered is incorrect.");
+        break;
+      case "auth/network-request-failed":
+        setError("Network error. Please check your connection.");
+        break;
+      default:
+        setError("An unexpected error occurred. Please try again later.");
+    }
+  };
+
+  // Reset fields after successful account creation
+  const handleOkay = () => {
+    hideModal();
+    setEmail("");
+    setPassword("");
+    setUsername("");
+    setError("");
+  };
+
+  // Display loading indicator if fonts are not loaded
+  if (!isLoaded) {
+    return <ActivityIndicator size="large" color="#9C1C1C" />;
+  }
+
   return (
     <View style={styles.container}>
       <Image
@@ -137,6 +177,7 @@ const SignInScreen = () => {
       />
       <Text style={styles.title}>Welcome Liars</Text>
 
+      {/* Email and Password Inputs for Sign In */}
       <TextInput
         placeholder="Email"
         value={email}
@@ -144,7 +185,6 @@ const SignInScreen = () => {
         style={styles.input}
         keyboardType="email-address"
       />
-
       <TextInput
         placeholder="Password"
         value={password}
@@ -153,25 +193,28 @@ const SignInScreen = () => {
         style={styles.input}
       />
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error && <Text style={styles.error}>{error}</Text>}
 
       {loading ? (
-        <ActivityIndicator size="large" color="#0000FF" />
+        <ActivityIndicator size="large" color="#9C1C1C" />
       ) : (
         <TouchableOpacity style={styles.signInButton} onPress={handleSignIn}>
           <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
       )}
+
+      {/* Modal for Sign-Up */}
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
         <View style={styles.container}>
           <Text style={styles.title}>
             Create Your Account{" "}
             <Image
-              style={styles.Logo}
+              style={styles.logo}
               source={require("../assets/images/logo.png")}
             />
           </Text>
 
+          {/* Email, Password and Username Inputs for Sign Up */}
           <TextInput
             placeholder="Email"
             value={email}
@@ -193,10 +236,10 @@ const SignInScreen = () => {
             style={styles.input}
           />
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error && <Text style={styles.error}>{error}</Text>}
 
           {loading ? (
-            <ActivityIndicator size="large" color="#0000FF" />
+            <ActivityIndicator size="large" color="#9C1C1C" />
           ) : (
             <TouchableOpacity
               style={styles.signUpButton}
@@ -205,19 +248,17 @@ const SignInScreen = () => {
               <Text style={styles.buttonText}>Let’s Get Started!</Text>
             </TouchableOpacity>
           )}
+
+          {/* Close Modal */}
           <TouchableOpacity onPress={hideModal} style={styles.closeButton}>
             <Text style={styles.closeButtonText}>
               Already have an account? Sign In
             </Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity
-        style={styles.signInButton}
-        onPress={() => router.push("/signin")}
-      >
-        <Text style={styles.buttonText}>Already have an account? Sign In</Text>
-      </TouchableOpacity> */}
         </View>
       </Modal>
+
+      {/* Trigger for Sign-Up Modal */}
       <TouchableOpacity style={styles.signUpButton} onPress={showModal}>
         <Text style={styles.buttonText}>Ready to join us? Sign up!</Text>
       </TouchableOpacity>
@@ -249,7 +290,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   signInButton: {
-    backgroundColor: "#d2692f", // Hex color for the button
+    backgroundColor: "#d2692f",
     paddingVertical: 12,
     borderRadius: 8,
     marginBottom: 20,
@@ -258,7 +299,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   signUpButton: {
-    backgroundColor: "#d2692f", // Hex color for the button
+    backgroundColor: "#d2692f",
     paddingVertical: 12,
     borderRadius: 8,
     marginTop: 12,
@@ -268,16 +309,16 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   buttonText: {
-    color: "#fff", // White text for contrast
+    color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
   },
   tinyLogo: {
     width: 200,
     height: 200,
-    resizeMode: "contain", // Ensure the image scales well
+    resizeMode: "contain",
     alignSelf: "center",
-    marginBottom: 20, // Adds space between the logo and the form
+    marginBottom: 20,
   },
   error: {
     color: "#9C1C1C",
@@ -285,26 +326,23 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   closeButton: {
-    marginTop: 20, // Place it at the bottom
-    bottom: 20, // 20px from the bottom of the modal
+    marginTop: 20,
     alignItems: "center",
     justifyContent: "center",
-    //transform: [{ translateX: -20 }], // Offset to center the X properly
-    backgroundColor: "transparent", // No background
     padding: 10,
-    borderRadius: 50, // Round shape
+    backgroundColor: "transparent",
   },
   closeButtonText: {
-    color: "#9C1C1C", // Red color for the X button
+    color: "#9C1C1C",
     fontSize: 15,
     fontWeight: "bold",
   },
-  Logo: {
+  logo: {
     width: 70,
     height: 70,
-    resizeMode: "contain", // Ensure the image scales well
+    resizeMode: "contain",
     alignSelf: "flex-end",
-    marginBottom: 20, // Adds space between the logo and the form
+    marginBottom: 20,
   },
 });
 
