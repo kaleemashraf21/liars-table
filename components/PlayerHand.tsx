@@ -18,14 +18,7 @@ const styles = StyleSheet.create({
     right: 0,
     height: 150,
     justifyContent: "center",
-    backgroundColor: "purple",
     alignItems: "center",
     zIndex: 10,
-  },
-  hand: {
-    color: "blue",
-    fontWeight: "bold",
-    marginBottom: 8,
-    zIndex: 100,
   },
 });

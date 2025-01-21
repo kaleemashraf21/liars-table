@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   },
   deck: {
     position: "absolute",
-    backgroundColor: "purple",
+    // backgroundColor: "purple",
     width: 100,
     height: 100,
     display: "flex",
