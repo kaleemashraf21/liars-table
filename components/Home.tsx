@@ -105,7 +105,6 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 50,
     fontFamily: "Vanilla-Whale", // Custom font for username
-    fontWeight: "bold",
     color: "#333", // Ensure visibility against background
     marginBottom: 40, // Space before the game button
   },
