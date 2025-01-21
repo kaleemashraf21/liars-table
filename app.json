@@ -4,7 +4,6 @@
     "slug": "liars-table",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -33,6 +32,12 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": ["./assets/fonts/Vanilla_Whale.otf"]
+        }
       ]
     ],
     "experiments": {
@@ -43,8 +48,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "0545229f-4463-47f0-9375-6992d36ec43a"
+        "projectId": "f54343e8-5a48-4088-944f-df11fea55272"
       }
-    }
+    },
+    "owner": "kaleemashraf21"
   }
 }
