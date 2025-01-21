@@ -25,8 +25,7 @@ export const drawCard = (deck_id: string, count: number) => {
     })
 }
 
-// export const addToPile = (pile_name: string, cards: any) => {
-    
+// export const addToPile = (pile_name: string, cards: any) => {  
 //     return cardApi.get(`api/deck/${deck_id}/pile/${pile_name}/add/?cards=${cards}`)
 // }
 
