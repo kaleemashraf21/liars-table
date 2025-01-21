@@ -18,6 +18,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { router } from "expo-router";
 import { PlayerHand } from "./PlayerHand";
 
+
 const { width, height } = Dimensions.get("window");
 type Position = "top" | "left" | "right" | "bottom";
 

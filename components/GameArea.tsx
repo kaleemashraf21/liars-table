@@ -23,19 +23,18 @@ return(
 )
 }
 
-const styles = StyleSheet.create({
-    container: {
-      // backgroundColor:"#fff",
-      flex: 1
-  
-    },
-    tableContainer:{
-        marginTop: 50,
-        flex: 1
-        //justifyContent: 'center',
-        // alignItems: 'center'
-        
-      }
-})
 
-export default GameArea
+const styles = StyleSheet.create({
+  container: {
+    // backgroundColor:"#fff",
+    flex: 1,
+  },
+  tableContainer: {
+    marginTop: 50,
+    flex: 1,
+    //justifyContent: 'center',
+    // alignItems: 'center'
+  },
+});
+
+export default GameArea;
