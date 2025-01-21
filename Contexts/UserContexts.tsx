@@ -1,13 +1,21 @@
 import React, { createContext, useState, ReactNode } from "react";
-interface User {
-  id: string;
+interface Card {
+  code: string;
+  image: string;
+  images: object;
+  suit: string;
+  value: string;
+}
+export interface User {
+  _id: string;
   username: string;
   email: string;
   avatar: string;
+  hand: any;
 }
 interface UserContextType {
   user: User | null;
-  setUser: (user: User | null) => void;
+  setUser: (user: User | any) => void;
 }
 export const UserContext = createContext<UserContextType | undefined>(
   undefined

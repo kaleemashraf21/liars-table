@@ -9,9 +9,7 @@ let deck_id = ""
 export const getNewDeck = () => {
     return cardApi.get(`/api/deck/new/shuffle/?deck_count=1`).then(({data})=>{
         deck_id = data.deck_id
-        console.log(deck_id)
         return data;
-        
     });
 };
 
@@ -21,7 +19,7 @@ export const getBackOfCard = () => {
     })
 }
 
-export const drawCard = (count: number) => {
+export const drawCard = (deck_id: string, count: number) => {
     return cardApi.get(`/api/deck/${deck_id}/draw/?count=${count}`).then(({data})=>{
         return data.cards
     })
@@ -45,7 +43,8 @@ const api = axios.create({
     email: string,
     username: string,
     avatar: string,
-    idToken: string
+    idToken: string,
+    hand: any
   ) => {
     const response = await api.post(
       "/users",

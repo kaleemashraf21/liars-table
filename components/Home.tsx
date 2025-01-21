@@ -3,6 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { UserContext } from "../Contexts/UserContexts"; // Import UserContext
 import { auth } from "@/firebaseConfig";
 import { router } from "expo-router";
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
 import Ionicons from "react-native-vector-icons/Ionicons"; // Import Ionicons for the logout icon
 
 const HomeScreen = ({ navigation }: { navigation: any }) => {
@@ -37,6 +43,9 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
       >
         <Ionicons name="person-circle-outline" size={60} color="#333" />
       </TouchableOpacity>
+      
+       
+
 
       {/* Log Out Icon and Text, only visible when isLogoutVisible is true */}
       {isLogoutVisible && (

@@ -7,7 +7,6 @@ export const GetDeck: any = () => {
     const [deck, setDeckId] = useState <any[]>([])
 
     useEffect(()=>{
-
         getNewDeck().then((data)=>{
             setDeckId(data.deck_id)
             console.log(deck)
