@@ -1,25 +1,28 @@
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { View, StyleSheet } from "react-native";
-import { HandProvider } from "@/Contexts/PlayerHandContext";
-import { GetDeck } from "./card";
-import PlayingTable from "./PlayingTable";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { DrawButton } from "./DrawCard";
+import { GestureHandlerRootView } from "react-native-gesture-handler"
+import { View, StyleSheet } from "react-native"
+import { HandProvider } from "@/Contexts/PlayerHandContext"
+import PlayingTable from "./PlayingTable"
+import { SafeAreaView } from "react-native-safe-area-context"
+
+
 
 const GameArea = () => {
-  return (
-    <GestureHandlerRootView style={styles.container}>
-      <View>
-        <HandProvider>
-          <SafeAreaView style={styles.tableContainer}>
-            <GetDeck />
-            <PlayingTable />
-          </SafeAreaView>
-        </HandProvider>
-      </View>
-    </GestureHandlerRootView>
-  );
-};
+return(
+<GestureHandlerRootView  style={styles.container}>
+<View >
+<HandProvider>
+<SafeAreaView style={styles.tableContainer}>
+  <PlayingTable  />
+  {/* <DrawButton /> */}
+
+  
+</SafeAreaView>
+</HandProvider>
+</View>
+</GestureHandlerRootView>
+)
+}
+
 
 const styles = StyleSheet.create({
   container: {

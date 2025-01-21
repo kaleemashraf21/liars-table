@@ -114,7 +114,7 @@ const SignInScreen = () => {
 
       if (currentUser) {
         const idToken = await currentUser.getIdToken();
-        const response = await createUser(email, username, avatar, idToken);
+        const response = await createUser(email, username, avatar, idToken, []);
 
         if (response) {
           Alert.alert(

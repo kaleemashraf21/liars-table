@@ -11,8 +11,8 @@ import {
 } from "react-native";
 import { HandContext } from "../Contexts/PlayerHandContext";
 import { useContext } from "react";
-import { DisplayCards } from "./DisplayCards";
-import { Card, Cards } from "../@types/playerHand";
+import { Card, Cards} from "../@types/playerHand";
+
 import DragDropDemo from "./DragDrop";
 
 export const DiscardPile: React.FC = () => {
