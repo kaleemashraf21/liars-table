@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { UserContext } from "../Contexts/UserContexts"; // Import UserContext
+import { UserContext } from "../Contexts/UserContexts";
 import { auth } from "@/firebaseConfig";
 import { router } from "expo-router";
 import {
@@ -8,30 +8,30 @@ import {
   MenuOptions,
   MenuOption,
   MenuTrigger,
-} from 'react-native-popup-menu';
-import Ionicons from "react-native-vector-icons/Ionicons"; // Import Ionicons for the logout icon
+} from "react-native-popup-menu";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-const HomeScreen = ({ navigation }: { navigation: any }) => {
-  const userContext = useContext(UserContext); // Access user from context
+const HomeScreen = () => {
+  const userContext = useContext(UserContext);
   if (!userContext) {
     throw new Error("UserContext is undefined");
   }
-  const { user, setUser } = userContext; // Destructure user from context
+  const { user, setUser } = userContext;
 
-  const [isLogoutVisible, setIsLogoutVisible] = useState(false); // State to control visibility of logout
+  const [isLogoutVisible, setIsLogoutVisible] = useState(false);
 
   const handleJoinGame = async () => {
     router.push("/joingame");
   };
 
   const handleLogOut = async () => {
-    await auth.signOut(); // Firebase sign-out
-    setUser(null); // Clear user context
-    router.push("/signin"); // Navigate to SignIn screen
+    await auth.signOut();
+    setUser(null);
+    router.push("/signin");
   };
 
   const toggleLogoutVisibility = () => {
-    setIsLogoutVisible((prevState) => !prevState); // Toggle visibility of the logout section
+    setIsLogoutVisible((prevState) => !prevState);
   };
 
   return (
@@ -43,9 +43,6 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
       >
         <Ionicons name="person-circle-outline" size={60} color="#333" />
       </TouchableOpacity>
-      
-       
-
 
       {/* Log Out Icon and Text, only visible when isLogoutVisible is true */}
       {isLogoutVisible && (
@@ -78,7 +75,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#f7f7f7", // Ensure background is consistent
+    backgroundColor: "#f7f7f7",
   },
   avatarContainer: {
     position: "absolute",
@@ -89,7 +86,7 @@ const styles = StyleSheet.create({
   },
   logoutContainer: {
     position: "absolute",
-    top: 85, // Position logout section below avatar
+    top: 85,
     right: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -101,31 +98,31 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: "#9C1C1C",
-    fontSize: 16, // Smaller text size for logout text
+    fontSize: 16,
     fontWeight: "bold",
-    marginLeft: 10, // Space between the icon and the text
+    marginLeft: 10,
   },
   title: {
-    fontSize: 50, // Larger title
-    fontFamily: "Vanilla-Whale", // Set custom font for the title
+    fontSize: 50,
+    fontFamily: "Vanilla-Whale",
     marginBottom: 10,
-    color: "#333", // Set text color for contrast
+    color: "#333",
   },
   username: {
     fontSize: 50,
-    fontFamily: "Vanilla-Whale", // Custom font for username
-    color: "#333", // Ensure visibility against background
-    marginBottom: 40, // Space before the game button
+    fontFamily: "Vanilla-Whale",
+    color: "#333",
+    marginBottom: 40,
   },
   createGameButton: {
-    backgroundColor: "#d2692f", // Using the same color theme
-    paddingVertical: 10, // Smaller padding for a smaller button
-    paddingHorizontal: 20, // Less horizontal padding
+    backgroundColor: "#d2692f",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 20, // Space between username and button
-    elevation: 3, // Slight shadow for better visibility
+    marginTop: 20,
+    elevation: 3,
   },
   buttonText: {
     color: "#fff",

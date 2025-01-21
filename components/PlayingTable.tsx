@@ -12,12 +12,10 @@ import { Socket } from "./socketConfig";
 import { Players } from "../@types/players";
 import { DrawButton } from "./DrawCard";
 import { DeckArea } from "./DeckArea";
-import { PlayerHand } from "./PlayerHand";
 import GameRules from "./GamesRules"; // Import GameRules component
 import Icon from "react-native-vector-icons/FontAwesome"; // Icon library
-import { routeToScreen } from "expo-router/build/useScreens";
 import { router } from "expo-router";
-// import {faDoorOpen} from 
+// import {faDoorOpen} from
 
 const { width, height } = Dimensions.get("window");
 type Position = "top" | "left" | "right" | "bottom";
@@ -50,9 +48,9 @@ const PlayingTable: React.FC = () => {
   const hideModal = () => setModalVisible(false);
 
   const leaveRoom = () => {
-    Socket.emit("leaveRoom")
-    router.push("/joingame")
-  }
+    Socket.emit("leaveRoom");
+    router.push("/joingame");
+  };
 
   useEffect(() => {
     Socket.on("updatePlayers", (updatedPlayers: Players) => {
