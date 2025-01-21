@@ -13,10 +13,11 @@ import { Players } from "../@types/players";
 import { DrawButton } from "./DrawCard";
 import { DeckArea } from "./DeckArea";
 import { PlayerHand } from "./PlayerHand";
-import GameRules from "./GamesRules"; // Import GameRules component
-import Icon from "react-native-vector-icons/FontAwesome"; // Icon library
+import GameRules from "./GamesRules";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 const { width, height } = Dimensions.get("window");
+
 type Position = "top" | "left" | "right" | "bottom";
 
 const PlayerSlot: React.FC<{ position: Position; name: string }> = ({
@@ -41,13 +42,17 @@ const PlayingTable: React.FC = () => {
     bottom: "Bottom...",
   });
 
-  const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
+  const [modalVisible, setModalVisible] = useState(false);
 
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);
 
   useEffect(() => {
-    Socket.on("updatePlayers", (updatedPlayers: Players) => {
+    Socket.on("playerJoined", (updatedPlayers: Players) => {
+      setPlayers(updatedPlayers);
+    });
+
+    Socket.on("playerLeft", (updatedPlayers: Players) => {
       setPlayers(updatedPlayers);
     });
 
