@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect} from "react";
 import {
   View,
   TextInput,
@@ -6,15 +6,31 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
+  TouchableOpacity,
+  Image,
+  Modal,
 } from "react-native";
+import { useFonts } from 'expo-font';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebaseConfig";
 import { fetchUserByEmail } from "./api";
 import { UserContext } from "../Contexts/UserContexts";
 import { router } from "expo-router";
 import { Socket } from "./socketConfig";
+import { SignUpScreen } from "./SIgnup";
+import * as SplashScreen from 'expo-splash-screen';
+
+
+
 
 const SignInScreen = () => {
+  const [isLoaded] = useFonts({
+    'Vanilla-Whale': require('../assets/fonts/Vanilla_Whale.otf'),
+  });
+
+  if (!isLoaded) {
+    return null; // Or a loading screen
+  }
   const userContext = useContext(UserContext);
   if (!userContext) throw new Error("User does not exist");
 
@@ -59,9 +75,17 @@ const SignInScreen = () => {
     }
   };
 
+  const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
+
+  const showModal = () => setModalVisible(true);
+  const hideModal = () => setModalVisible(false);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Liar's Table</Text>
+      <Image    
+        style={styles.tinyLogo}
+        source={require('../assets/images/logo.png')}/>
+      <Text style={styles.title}>Welcome Liars</Text>
       <TextInput
         placeholder="Email"
         value={email}
@@ -80,12 +104,24 @@ const SignInScreen = () => {
       {loading ? (
         <ActivityIndicator size="large" color="#0000FF" />
       ) : (
-        <Button title="Sign In" onPress={handleSignIn} disabled={loading} />
+        <Button title="Sign In" onPress={handleSignIn} disabled={loading} color={"#d2692f"} />
       )}
-      <Button
-        title="Don't have an account? Sign Up"
-        onPress={() => router.push("/signup")}
-      />
+      <TouchableOpacity style={styles.signUpButton} onPress={showModal}>
+       
+       <Text>Don't have an account? Sign up here.</Text>
+
+      </TouchableOpacity>
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={modalVisible}
+        onRequestClose={hideModal}
+      >
+      <SignUpScreen />
+      <TouchableOpacity style={styles.signUpButton} onPress={hideModal}>
+      <Text>Already have an account? Sign In</Text>
+      </TouchableOpacity>
+      </Modal>
     </View>
   );
 };
@@ -98,10 +134,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f7f7f7",
   },
   title: {
-    fontSize: 24,
+    fontSize: 60,
+    fontFamily: "Vanilla-Whale",
     marginBottom: 20,
     textAlign: "center",
-    fontWeight: "bold",
+   
   },
   input: {
     height: 40,
@@ -111,6 +148,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 4,
     backgroundColor: "#fff",
+  },
+  signUpButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "#4B5563",
+    borderRadius: 50,
+    padding: 10,
+    elevation: 5,
+  },
+  tinyLogo: {
+    width: 200,
+    height: 200,
+    padding: 100,
+    top: -50,
+    alignSelf: 'center'
   },
   error: { color: "red", marginBottom: 12, textAlign: "center" },
 });

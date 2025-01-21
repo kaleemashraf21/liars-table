@@ -13,7 +13,7 @@ import { auth } from "@/firebaseConfig";
 import { createUser } from "./api";
 import { router } from "expo-router";
 
-export const SignUpScreen = ({ navigation }: { navigation: any }) => {
+export const SignUpScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -65,6 +65,7 @@ export const SignUpScreen = ({ navigation }: { navigation: any }) => {
   };
 
   return (
+    
     <View style={styles.container}>
       <Text style={styles.title}>Create Your Account</Text>
 
@@ -93,10 +94,6 @@ export const SignUpScreen = ({ navigation }: { navigation: any }) => {
       ) : (
         <Button title="Sign Up" onPress={handleSignUp} />
       )}
-      <Button
-        title="Already have an account? Sign In"
-        onPress={() => router.push("/signin")}
-      />
     </View>
   );
 };
