@@ -11,6 +11,7 @@ import { UserContext } from "@/Contexts/UserContexts";
 import { Socket } from "./socketConfig";
 import { useLocalSearchParams } from "expo-router";
 import { Card } from "@/@types/playerHand";
+import { User } from "../Contexts/UserContexts";
 const { width, height } = Dimensions.get("window");
 
 export const DisplayCards: React.FC = () => {
@@ -19,7 +20,7 @@ export const DisplayCards: React.FC = () => {
     throw new Error("UserContext is undefined");
   }
   const { user, setUser } = userContext;
-  const cards = user?.hand || [];
+  const [cards, setCards] = useState<Card[]>(user.hand || []);
   const [selectedCards, setSelectedCards] = useState<number[]>([]); // Track selected card indexes
   const params = useLocalSearchParams();
   const [cardsToDiscard, setCardsToDiscard] = useState<Card[]>([]);
@@ -28,9 +29,9 @@ export const DisplayCards: React.FC = () => {
     console.log("cards to discard:", cardsToDiscard);
   }, [cardsToDiscard]);
 
-  // useEffect(() => {
-  //   console.log("Selected cards changed:", selectedCards);
-  // }, [selectedCards]);
+  useEffect(() => {
+    console.log("hand changed:", user.hand, user?.hand.length);
+  }, [user.hand]);
 
   const handleCardPress = (index: number) => {
     // Limit selection to 4 cards
@@ -64,7 +65,17 @@ export const DisplayCards: React.FC = () => {
     }
     
     setCardsToDiscard(allCardsToDiscard)
- 
+    
+    const newHand = cards.filter(element=> !allCardsToDiscard.includes(element))
+    setCards(newHand)
+    setSelectedCards([])
+    setUser((prevUser: User) => {
+      return {
+        ...prevUser,
+        hand: newHand,
+      };
+    });
+
 
   }
   useEffect(() => {
@@ -74,6 +85,10 @@ export const DisplayCards: React.FC = () => {
     // Socket.emit("discardPile", cardsToDiscard)
 
   }, [cardsToDiscard]);
+
+  useEffect(()=>{
+    setCards(user?.hand)
+  }, [user?.hand])
 
   return (
     <View style={styles.bigContainer} >
