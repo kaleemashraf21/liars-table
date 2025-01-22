@@ -22,34 +22,28 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
       Alert.alert("Error", "Room name is required");
       return;
     }
-
     if (!user || !user.username || !user.avatar) {
       Alert.alert("Error", "User data is missing. Please log in again.");
       return;
     }
-
     setIsLoading(true);
-
     const room = {
       password: password || null,
       roomName: roomName.trim(),
       username: user.username,
       avatar: user.avatar,
     };
-
     console.log("Submitting createRoom request with data:", room);
-
     Socket.emit(
       "createRoom",
       room,
       (response: { success: boolean; message: string }) => {
         console.log("Server response to createRoom:", response);
         setIsLoading(false);
-
         if (response.success) {
           setPassword("");
           setRoomName("");
-          // Update to pass roomName as a parameter
+          console.log("Navigating to game with roomName:", room.roomName);
           router.push({
             pathname: "/Game",
             params: { roomName: room.roomName },
