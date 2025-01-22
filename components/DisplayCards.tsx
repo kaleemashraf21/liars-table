@@ -12,6 +12,7 @@ import { Socket } from "./socketConfig";
 import { useLocalSearchParams } from "expo-router";
 import { Card } from "@/@types/playerHand";
 import { User } from "../Contexts/UserContexts";
+import { all } from "axios";
 const { width, height } = Dimensions.get("window");
 
 export const DisplayCards: React.FC = () => {
@@ -24,14 +25,16 @@ export const DisplayCards: React.FC = () => {
   const [selectedCards, setSelectedCards] = useState<number[]>([]); // Track selected card indexes
   const params = useLocalSearchParams();
   const [cardsToDiscard, setCardsToDiscard] = useState<Card[]>([]);
+  const [discardPile, setDiscardPile] = useState<Card[]>([])
   const roomName = params.roomName as string;
-  useEffect(() => {
-    console.log("cards to discard:", cardsToDiscard);
-  }, [cardsToDiscard]);
+
+  // useEffect(() => {
+  //   console.log("cards to discard:", cardsToDiscard);
+  // }, [cardsToDiscard]);
 
   useEffect(() => {
-    console.log("hand changed:", user.hand, user?.hand.length);
-  }, [user.hand]);
+    console.log("discard pile:", discardPile);
+  }, [discardPile]);
 
   const handleCardPress = (index: number) => {
     // Limit selection to 4 cards
@@ -52,20 +55,14 @@ export const DisplayCards: React.FC = () => {
   };
 
   const handleSubmit = (selectedCards: number[]) => {
-    //endTurn
-    //remove cards from hand  
-  
     let allCardsToDiscard = []
     for(let i = cards.length - 1; i>=0; i--){
       if(selectedCards.includes(i)){
        allCardsToDiscard.push(cards[i])
-        
       }
-      
     }
     
     setCardsToDiscard(allCardsToDiscard)
-    
     const newHand = cards.filter(element=> !allCardsToDiscard.includes(element))
     setCards(newHand)
     setSelectedCards([])
@@ -75,6 +72,7 @@ export const DisplayCards: React.FC = () => {
         hand: newHand,
       };
     });
+    setDiscardPile((prevPile: any) => [...prevPile, ...allCardsToDiscard]);
 
 
   }
