@@ -11,7 +11,6 @@ import Animated, {
     withTiming,
     withSequence,
     withSpring
-
   } from 'react-native-reanimated';
 import { StyleSheet } from "react-native";
   
@@ -43,8 +42,6 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({
     const zIndexValue = useSharedValue(zIndex)
     const lastTap = useSharedValue(0);
   
-  
-    
     const animatedStyles = useAnimatedStyle(() => {
         return {
             transform: [
@@ -89,30 +86,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({
         zIndexValue.value = zIndex - 1
     });
 
-    
-
-// const doubleTap = Gesture.Tap()
-//           .maxDuration(250)
-//           .numberOfTaps(2)
-//           .onStart(() => {
-//               try {
-//                   'worklet';
-//                   const now = Date.now();
-//                   if (now - lastTap.value < 300) {
-//                       // Double tap detected
-//                       scale.value = withSequence(
-//                           withTiming(1.1, { duration: 100 }),
-//                           withTiming(1, { duration: 100 })
-//                       );
-//                       zIndexValue.value = withTiming(zIndexValue.value + 100, {
-//                           duration: 100
-//                       });
-//                   }
-//                   lastTap.value = now;
-//               } catch (error) {
-//                   console.log('Tap gesture error:', error);
-//               }
-//           });
+// 
 const doubleTap = Gesture.Tap()
 .numberOfTaps(2)
 .onStart(() => {
@@ -142,3 +116,26 @@ const styles = StyleSheet.create({
         position: 'absolute'
     },
 });
+
+const doubleTap = Gesture.Tap()
+//           .maxDuration(250)
+//           .numberOfTaps(2)
+//           .onStart(() => {
+//               try {
+//                   'worklet';
+//                   const now = Date.now();
+//                   if (now - lastTap.value < 300) {
+//                       // Double tap detected
+//                       scale.value = withSequence(
+//                           withTiming(1.1, { duration: 100 }),
+//                           withTiming(1, { duration: 100 })
+//                       );
+//                       zIndexValue.value = withTiming(zIndexValue.value + 100, {
+//                           duration: 100
+//                       });
+//                   }
+//                   lastTap.value = now;
+//               } catch (error) {
+//                   console.log('Tap gesture error:', error);
+//               }
+//           });

@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { Socket } from "./socketConfig";
 import { DrawButton } from "./DrawCard";
-import { DeckArea } from "./DeckArea";
 import GameRules from "./GamesRules";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -110,6 +109,7 @@ const PlayingTable: React.FC = () => {
     };
   }, [roomName]);
 
+
   const showStatusMessage = (message: string, type: "error" | "info") => {
     setStatusMessage({ message, type });
 
@@ -132,6 +132,38 @@ const PlayingTable: React.FC = () => {
   Socket.on("notYourTurn", () => {
     showStatusMessage("It's not your turn!", "error");
   });
+
+  useEffect(() => {
+    console.log("PlayingTable mounted with roomName:", roomName);
+
+    if (!roomName) {
+      console.error("No roomName provided to PlayingTable");
+      return;
+    }
+
+    Socket.on("playerJoined", (data: SocketPlayerJoinedPayload) => {
+      console.log("Received playerJoined event:", data);
+      if (data && Array.isArray(data.players)) {
+        setPlayers(data.players);
+        console.log("Updated players state:", data.players);
+      }
+    });
+
+    // Request initial room state
+    Socket.emit("requestRoomState", roomName, (response: any) => {
+      console.log("Room state response:", response);
+      if (response.success && response.players) {
+        setPlayers(response.players);
+      } else {
+        console.error("Failed to get room state:", response.message);
+      }
+    });
+
+    return () => {
+      Socket.off("playerJoined");
+    };
+  }, [roomName]);
+
 
   // Debug: log players state changes
   useEffect(() => {
@@ -228,7 +260,7 @@ const PlayingTable: React.FC = () => {
       {/* Center game area */}
       <View style={styles.deck}>
         <DrawButton />
-        <DeckArea />
+        {/* <DeckArea /> */}
       </View>
 
       {/* Bottom player (third to join) */}

@@ -63,7 +63,7 @@ const HomeScreen = () => {
         style={styles.createGameButton}
         onPress={handleJoinGame}
       >
-        <Text style={styles.buttonText}>Create Game</Text>
+        <Text style={styles.buttonText}>Start Playing</Text>
       </TouchableOpacity>
     </View>
   );

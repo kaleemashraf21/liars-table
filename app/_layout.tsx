@@ -30,7 +30,6 @@ export default function Layout() {
             headerShown: false,
           }}
         />
-        <MenuProvider>
           <Stack.Screen
             name="home"
             options={{
@@ -39,7 +38,6 @@ export default function Layout() {
               gestureEnabled: false,
             }}
           />
-        </MenuProvider>
       </Stack>
     </UserProvider>
   );

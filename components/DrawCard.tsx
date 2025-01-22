@@ -26,14 +26,14 @@ export const DrawButton: React.FC = () => {
     console.log("Updated user:", user);
   }, [user]);
 
-  const handlePress = () => {
+  const handlePress = () => { 
     setInProgress(true);
-    const player: Card[][] = [[], [], [], []];
+    const player: Card[][] = [[], []]; //change back to array of 4 and index % 4
     getNewDeck().then((data) => {
       drawCard(data.deck_id, 52)
         .then((deck) => {
-          deck.map((card: Card, index: number) => {
-            player[index % 4].push(card);
+          deck.map((card: Card, index: number) => { 
+            player[index % 2].push(card);//change back to array of 4 and index % 4
           });
         })
         .then(() => {

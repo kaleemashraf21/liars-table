@@ -1,22 +1,26 @@
 import React, { useContext, useState } from "react";
-import { View, Text, Button, StyleSheet, TextInput, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+} from "react-native";
 import { UserContext } from "../Contexts/UserContexts";
 import { auth } from "../firebaseConfig";
 import { Socket } from "./socketConfig";
 import { router } from "expo-router";
-
+import Ionicons from "react-native-vector-icons/Ionicons";
 export const CreateGame = ({ navigation }: { navigation: any }) => {
   const [password, setPassword] = useState("");
   const [roomName, setRoomName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
   const userContext = useContext(UserContext);
   if (!userContext) {
     throw new Error("UserContext is undefined");
   }
-
   const { user, setUser } = userContext;
-
   const handleSubmit = async () => {
     if (!roomName.trim()) {
       Alert.alert("Error", "Room name is required");
@@ -43,7 +47,9 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
         if (response.success) {
           setPassword("");
           setRoomName("");
+
           console.log("Navigating to game with roomName:", room.roomName);
+
           router.push({
             pathname: "/Game",
             params: { roomName: room.roomName },
@@ -54,19 +60,29 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
       }
     );
   };
-
   const handleJoinGames = () => {
     router.push("/joingame");
   };
-
   const handleLogOut = async () => {
     await auth.signOut();
     setUser(null);
     router.push("/signin");
   };
-
   return (
     <View style={styles.container}>
+      {/* Back Icon at top-right corner */}
+      <TouchableOpacity
+        style={styles.backIconContainer}
+        onPress={() => router.push("/joingame")}
+      >
+        <Ionicons name="arrow-back-circle-outline" size={40} color="#333" />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.avatarContainer} onPress={handleLogOut}>
+        <Ionicons name="person-circle-outline" size={60} color="#333" />
+      </TouchableOpacity>
+      {/* Title */}
+      <Text style={styles.title}>Create New Game</Text>
+      {/* Room Name Input */}
       <TextInput
         style={styles.input}
         placeholder="Room Name (required)"
@@ -74,6 +90,7 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
         onChangeText={setRoomName}
         editable={!isLoading}
       />
+      {/* Password Input */}
       <TextInput
         style={styles.input}
         placeholder="Password (optional)"
@@ -82,41 +99,92 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
         secureTextEntry
         editable={!isLoading}
       />
+      {/* Button Container */}
       <View style={styles.buttonContainer}>
-        <Button
-          title={isLoading ? "Creating..." : "Create Room"}
+        <TouchableOpacity
+          style={styles.createGameButton}
           onPress={handleSubmit}
           disabled={isLoading}
-        />
-        <Button
-          title="Join Existing Room"
+        >
+          <Text style={styles.buttonText}>
+            {isLoading ? "Creating..." : "Create Room"}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.createGameButton}
           onPress={handleJoinGames}
           disabled={isLoading}
-        />
-        <Button
-          title="Back to Home"
-          onPress={() => router.push("/home")}
-          disabled={isLoading}
-        />
+        >
+          <Text style={styles.buttonText}>Join Existing Room</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: "#F7F7F7",
+  },
+  backIconContainer: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+    padding: 10,
+  },
+  backHomeText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 5,
+    color: "#333",
+  },
+  avatarContainer: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    backgroundColor: "transparent",
+    padding: 10,
+  },
+  title: {
+    fontSize: 30,
+    fontFamily: "Vanilla-Whale",
+    marginBottom: 10,
+    color: "#333",
+    textAlign: "center",
   },
   input: {
     height: 40,
-    borderColor: "gray",
+    borderColor: "#ccc",
     borderWidth: 1,
-    marginBottom: 10,
+    marginBottom: 12,
     paddingHorizontal: 10,
     borderRadius: 5,
+    width: "80%",
   },
   buttonContainer: {
-    gap: 10,
+    marginTop: 30,
+    gap: 15,
+    width: "100%",
+    alignItems: "center",
+  },
+  createGameButton: {
+    backgroundColor: "#D2692F",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+    elevation: 3,
+    width: "80%",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
+export default CreateGame;
