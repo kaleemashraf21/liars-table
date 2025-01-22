@@ -10,14 +10,12 @@ import {
 } from "react-native";
 import { Socket } from "./socketConfig";
 import { DrawButton } from "./DrawCard";
-import { DeckArea } from "./DeckArea";
 import GameRules from "./GamesRules";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { router } from "expo-router";
 import { PlayerHand } from "./PlayerHand";
 import { useLocalSearchParams } from "expo-router";
-
 
 const { width, height } = Dimensions.get("window");
 
@@ -49,28 +47,61 @@ const PlayerSlot: React.FC<{
 };
 
 const PlayingTable: React.FC = () => {
-
   const [players, setPlayers] = useState<Player[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const params = useLocalSearchParams();
   const roomName = params.roomName as string;
 
+  useEffect(() => {
+    console.log("PlayingTable mounted with roomName:", roomName);
 
-  // const [players, setPlayers] = useState<Players>({
-  //   top: "Player 3",
-  //   left: "Player 2",
-  //   right: "Player 4",
-  //   bottom: "Player 1",
-  // });
+    if (!roomName) {
+      console.error("No roomName provided to PlayingTable");
+      return;
+    }
 
-  // info button
+    Socket.on("playerJoined", (data: SocketPlayerJoinedPayload) => {
+      console.log("Received playerJoined event:", data);
+      if (data && Array.isArray(data.players)) {
+        setPlayers(data.players);
+        console.log("Updated players state:", data.players);
+      }
+    });
+
+    // Request initial room state
+    Socket.emit("requestRoomState", roomName, (response: any) => {
+      console.log("Room state response:", response);
+      if (response.success && response.players) {
+        setPlayers(response.players);
+      } else {
+        console.error("Failed to get room state:", response.message);
+      }
+    });
+
+    return () => {
+      Socket.off("playerJoined");
+    };
+  }, [roomName]);
+
+  // Debug: log players state changes
+  useEffect(() => {
+    console.log("Players state updated:", players);
+  }, [players]);
 
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);
 
   const leaveRoom = () => {
-    Socket.emit("leaveRoom");
-    router.push("/joingame");
+    if (roomName) {
+      Socket.emit("leaveRoom", roomName, (response: any) => {
+        console.log("Leave room response:", response);
+        if (response.success) {
+          router.push("/joingame");
+        } else {
+          console.error("failed to leave room:", response.message);
+        }
+      });
+    }
   };
 
   useEffect(() => {
@@ -100,9 +131,18 @@ const PlayingTable: React.FC = () => {
       });
     }
 
+    Socket.on(
+      "playerLeft",
+      (data: { players: Player[]; leftPlayerId: string }) => {
+        console.log("Player left event received:", data);
+        setPlayers(data.players);
+      }
+    );
+
     return () => {
       console.log("Cleaning up socket listeners");
       Socket.off("playerJoined");
+      Socket.off("playerLeft");
       Socket.offAny(onAnyEvent);
     };
   }, [roomName]);
@@ -122,7 +162,7 @@ const PlayingTable: React.FC = () => {
       {/* Center game area */}
       <View style={styles.deck}>
         <DrawButton />
-        <DeckArea />
+        {/* <DeckArea /> */}
       </View>
 
       {/* Bottom player (third to join) */}
@@ -143,11 +183,10 @@ const PlayingTable: React.FC = () => {
         <Icon name="info-circle" size={30} color="white" />
       </TouchableOpacity>
 
-
       {/* Rules Modal */}
 
       <TouchableOpacity style={styles.leaveRoomButton} onPress={leaveRoom}>
-            <Ionicons name="log-out-outline" size={24} />
+        <Ionicons name="log-out-outline" size={24} />
       </TouchableOpacity>
 
       {/* Modal for Game Rules */}
