@@ -68,7 +68,7 @@ export const DisplayCards: React.FC = () => {
 
   }
   useEffect(() => {
-    console.log(":3")
+    
     // Socket.emit("endTurn", roomName)
 
     // Socket.emit("discardPile", cardsToDiscard)
