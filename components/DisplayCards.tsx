@@ -5,8 +5,13 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  Dimensions,
 } from "react-native";
 import { UserContext } from "@/Contexts/UserContexts";
+import { Socket } from "./socketConfig";
+import { useLocalSearchParams } from "expo-router";
+import { Card } from "@/@types/playerHand";
+const { width, height } = Dimensions.get("window");
 
 export const DisplayCards: React.FC = () => {
   const userContext = useContext(UserContext);
@@ -14,17 +19,18 @@ export const DisplayCards: React.FC = () => {
     throw new Error("UserContext is undefined");
   }
   const { user, setUser } = userContext;
-
   const cards = user?.hand || [];
   const [selectedCards, setSelectedCards] = useState<number[]>([]); // Track selected card indexes
-
+  const params = useLocalSearchParams();
+  const [cardsToDiscard, setCardsToDiscard] = useState<Card[]>([]);
+  const roomName = params.roomName as string;
   useEffect(() => {
-    console.log("Hand value changed:", cards);
-  }, [user]);
+    console.log("cards to discard:", cardsToDiscard);
+  }, [cardsToDiscard]);
 
-  useEffect(() => {
-    console.log("Selected cards changed:", selectedCards);
-  }, [selectedCards]);
+  // useEffect(() => {
+  //   console.log("Selected cards changed:", selectedCards);
+  // }, [selectedCards]);
 
   const handleCardPress = (index: number) => {
     // Limit selection to 4 cards
@@ -44,11 +50,40 @@ export const DisplayCards: React.FC = () => {
     });
   };
 
+  const handleSubmit = (selectedCards: number[]) => {
+    //endTurn
+    //remove cards from hand  
+  
+    let allCardsToDiscard = []
+    for(let i = cards.length - 1; i>=0; i--){
+      if(selectedCards.includes(i)){
+       allCardsToDiscard.push(cards[i])
+        
+      }
+      
+    }
+    
+    setCardsToDiscard(allCardsToDiscard)
+ 
+
+  }
+  useEffect(() => {
+    console.log(":3")
+    // Socket.emit("endTurn", roomName)
+
+    // Socket.emit("discardPile", cardsToDiscard)
+
+  }, [cardsToDiscard]);
+
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.submitButton}>
+    <View style={styles.bigContainer} >
+      <View style={styles.bigContainer}>
+      <TouchableOpacity style={styles.submitButton} onPress={() => handleSubmit(selectedCards)}>
         <Text>Submit</Text>
       </TouchableOpacity>
+
+      </View>
+    <View style={styles.container}>
     {cards.map((element, index) => (
       <TouchableOpacity
         key={index}
@@ -75,19 +110,22 @@ export const DisplayCards: React.FC = () => {
       </TouchableOpacity>
     ))}
   </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   submitButton: {
-    position: "relative",
-    justifyContent: "center", // Center the cards horizontally
-    alignItems: "center", // Center the cards vertically (optional)
-    height: 200,
-    width: "100%",
-    flexDirection: "row", // Align cards horizontally
-    right: 300,
-    translateY: -40
+    position: "absolute",
+    top: -height/8,
+    left: -width/100, 
+    height: 50,
+    width: 100,
+    backgroundColor: "white",
+    justifyContent: "center"
+  },
+  bigContainer : {
+    flex: 1
   },
   container: {
     position: "relative",
@@ -96,7 +134,7 @@ const styles = StyleSheet.create({
     height: 200,
     width: "100%",
     flexDirection: "row", // Align cards horizontally
-    left: 300
+    left: 50
   },
   card: {
     position: "absolute", // Stack cards on top of each other
