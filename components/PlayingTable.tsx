@@ -9,24 +9,35 @@ import {
   ScrollView,
 } from "react-native";
 import { Socket } from "./socketConfig";
-import { Players } from "../@types/players";
 import { DrawButton } from "./DrawCard";
 import { DeckArea } from "./DeckArea";
 import { PlayerHand } from "./PlayerHand";
 import GameRules from "./GamesRules";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { useLocalSearchParams } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 
-type Position = "top" | "left" | "right" | "bottom";
+interface Player {
+  socketId: string;
+  username: string;
+  avatar: string;
+  hand: any[];
+}
 
-const PlayerSlot: React.FC<{ position: Position; name: string }> = ({
-  position,
-  name,
-}) => {
+interface SocketPlayerJoinedPayload {
+  players: Player[];
+}
+
+const PlayerSlot: React.FC<{
+  player: Player | null;
+  position: string;
+}> = ({ player, position }) => {
   return (
     <View style={styles.playerSlot}>
-      <Text style={styles.playerName}>{name}</Text>
+      <Text style={styles.playerName}>
+        {player ? player.username : `Empty ${position}`}
+      </Text>
       <View>
         <Text>Cards</Text>
       </View>
@@ -35,58 +46,85 @@ const PlayerSlot: React.FC<{ position: Position; name: string }> = ({
 };
 
 const PlayingTable: React.FC = () => {
-  const [players, setPlayers] = useState<Players>({
-    top: "Top...",
-    left: "Left.....",
-    right: "Right....",
-    bottom: "Bottom...",
-  });
-
+  const [players, setPlayers] = useState<Player[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const params = useLocalSearchParams();
+  const roomName = params.roomName as string;
 
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);
 
   useEffect(() => {
-    Socket.on("playerJoined", (updatedPlayers: Players) => {
-      setPlayers(updatedPlayers);
+    console.log("Setting up socket listeners for room:", roomName);
+
+    // Set up a listener for all socket events (debug)
+    const onAnyEvent = (eventName: string, ...args: any[]) => {
+      console.log(`Socket event received - ${eventName}:`, args);
+    };
+    Socket.onAny(onAnyEvent);
+
+    Socket.on("playerJoined", (data: { players: Player[] }) => {
+      console.log("Received playerJoined event:", data);
+      if (data && Array.isArray(data.players)) {
+        setPlayers(data.players);
+        console.log("Updated players state:", data.players);
+      }
     });
 
-    Socket.on("playerLeft", (updatedPlayers: Players) => {
-      setPlayers(updatedPlayers);
-    });
+    // Request current room state when component mounts
+    if (roomName) {
+      Socket.emit("requestRoomState", roomName, (response: any) => {
+        console.log("Room state response:", response);
+        if (response && response.players) {
+          setPlayers(response.players);
+        }
+      });
+    }
 
     return () => {
-      Socket.disconnect();
+      console.log("Cleaning up socket listeners");
+      Socket.off("playerJoined");
+      Socket.offAny(onAnyEvent);
     };
-  }, []);
+  }, [roomName]);
 
   return (
     <View style={styles.container}>
+      {/* Top player (first to join) */}
       <View style={styles.top}>
-        <PlayerSlot position="top" name={players.top} />
+        <PlayerSlot position="top" player={players[0] || null} />
       </View>
-      <View style={styles.left}>
-        <PlayerSlot position="left" name={players.left} />
+
+      {/* Right player (second to join) */}
+      <View style={styles.right}>
+        <PlayerSlot position="right" player={players[1] || null} />
       </View>
+
+      {/* Center game area */}
       <View style={styles.deck}>
         <DrawButton />
         <DeckArea />
       </View>
-      <View style={styles.right}>
-        <PlayerSlot position="right" name={players.right} />
-      </View>
+
+      {/* Bottom player (third to join) */}
       <View style={styles.bottom}>
-        <PlayerSlot position="bottom" name={players.bottom} />
+        <PlayerSlot position="bottom" player={players[2] || null} />
       </View>
+
+      {/* Left player (fourth to join) */}
+      <View style={styles.left}>
+        <PlayerSlot position="left" player={players[3] || null} />
+      </View>
+
+      {/* Player's hand */}
       <PlayerHand />
 
-      {/* Information Icon for Rules */}
+      {/* Rules Info Button */}
       <TouchableOpacity style={styles.infoButton} onPress={showModal}>
         <Icon name="info-circle" size={30} color="white" />
       </TouchableOpacity>
 
-      {/* Modal for Game Rules */}
+      {/* Rules Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -98,7 +136,6 @@ const PlayingTable: React.FC = () => {
             <ScrollView>
               <GameRules />
             </ScrollView>
-            {/* Close Button */}
             <TouchableOpacity onPress={hideModal} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
