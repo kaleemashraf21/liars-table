@@ -58,7 +58,7 @@ const PlayerSlot: React.FC<{
 };
 
 const PlayingTable: React.FC = () => {
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [players, setPlayers] = useState<any>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const params = useLocalSearchParams();
   const roomName = params.roomName as string;
@@ -259,9 +259,14 @@ const PlayingTable: React.FC = () => {
 
       {/* Center game area */}
       <View style={styles.deck}>
-        <DrawButton />
+        <DrawButton players={players} />
         {/* <DeckArea /> */}
       </View>
+
+          {/* DRAW BUTTON IS HERE /////////////////////////////////////////////////////////////////////////////////// */}
+
+
+
 
       {/* Bottom player (third to join) */}
       <View style={styles.bottom}>

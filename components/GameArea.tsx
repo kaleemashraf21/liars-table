@@ -16,9 +16,7 @@ const GameArea = () => {
       <ImageBackground source={require("../assets/images/table.jpg")} imageStyle={styles.image} resizeMode="stretch">
         <HandProvider>
           <SafeAreaView style={styles.tableContainer}>
-            
               <PlayingTable />
-
           </SafeAreaView>
         </HandProvider>
         </ImageBackground>
