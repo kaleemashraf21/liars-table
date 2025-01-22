@@ -13,8 +13,22 @@ import { useContext } from "react";
 import { Card, Cards } from "../@types/playerHand";
 import { UserContext } from "../Contexts/UserContexts";
 import { User } from "../Contexts/UserContexts";
+import { Socket } from "./socketConfig";
+import { useLocalSearchParams } from "expo-router";
 
-export const DrawButton: React.FC = () => {
+interface Player {
+  socketId: string;
+  username: string;
+  avatar: string;
+  hand: any[];
+}
+
+interface DrawButtonProps {
+  players: Player[];
+}
+
+
+export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
   const [inProgress, setInProgress] = useState(false);
   const userContext = useContext(UserContext);
   if (!userContext) {
@@ -22,11 +36,18 @@ export const DrawButton: React.FC = () => {
   }
   const { user, setUser } = userContext;
 
-  useEffect(() => {
-    console.log("Updated user:", user);
-  }, [user]);
 
+  const params = useLocalSearchParams();
+
+  // useEffect(() => {
+  //   console.log("Updated user:", user);
+  // }, [user]);
+
+
+  const roomName = params.roomName as string;
   const handlePress = () => { 
+
+
     setInProgress(true);
     const player: Card[][] = [[], []]; //change back to array of 4 and index % 4
     getNewDeck().then((data) => {
@@ -37,6 +58,15 @@ export const DrawButton: React.FC = () => {
           });
         })
         .then(() => {
+          // get all players and their player number
+          // assign them a part of the array 0123 etc
+          // emit that to backend?
+          Socket.emit("distributeCards", {roomName, hands: player})
+          Socket.on("cardsDealt", (data: any) => {
+            console.log(data)
+            const currentPlayer = data.players
+          })
+          
           setUser((prevUser: User) => {
             return {
               ...prevUser,
