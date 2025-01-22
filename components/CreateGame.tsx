@@ -47,6 +47,9 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
         if (response.success) {
           setPassword("");
           setRoomName("");
+
+          console.log("Navigating to game with roomName:", room.roomName);
+
           router.push({
             pathname: "/Game",
             params: { roomName: room.roomName },
