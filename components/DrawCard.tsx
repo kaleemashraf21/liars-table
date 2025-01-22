@@ -27,6 +27,8 @@ interface DrawButtonProps {
   players: Player[];
 }
 
+
+
 export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
   const [inProgress, setInProgress] = useState(false);
   const userContext = useContext(UserContext);
@@ -36,47 +38,46 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
   const { user, setUser } = userContext;
   const params = useLocalSearchParams();
   const roomName = params.roomName as string;
-  const handlePress = () => {
-    setInProgress(true);
-    const player: Card[][] = [[], []]; // Change back to array of 4 and index % 4
-
-    getNewDeck()
-      .then((data) => {
-        return drawCard(data.deck_id, 52);
-      })
-      .then((deck) => {
-        deck.map((card: Card, index: number) => {
-          player[index % 2].push(card); // Change back to array of 4 and index % 4
-        });
-
-        // Emit the event to distribute the cards
-        Socket.emit("distributeCards", { roomName, hands: player });
-
-        // Handle the cardsDealt event
-        return new Promise((resolve) => {
-          Socket.once("cardsDealt", (data: any) => {
-            // console.log(data, 'dataaaa');
-            const currentPlayer = data.players;
-            resolve(currentPlayer); // Resolve with currentPlayer
-          });
-        });
-      })
-      .then((currentPlayer: any) => {
-        // console.log(currentPlayer, 'currentPlayer')
-        // console.log(currentPlayer, 'currentPlayer')
-        for (let i = 0; i < currentPlayer.length; i++) {
-          if (currentPlayer[i].username === user?.username) {
-            console.log(currentPlayer[i]);
-            setUser((prevUser: User) => ({
-              ...prevUser,
-              hand: currentPlayer[i].hand,
-            }));
-          }
+  
+  useEffect(() => {
+    // Set up listener before any cards are dealt
+    Socket.on("cardsDealt", (data: any) => {
+      const currentPlayer = data.players;
+      for (let i = 0; i < currentPlayer.length; i++) {
+        if (currentPlayer[i].username === user?.username) {
+          console.log("Received cards for:", currentPlayer[i].username);
+          setUser((prevUser: User) => ({
+            ...prevUser,
+            hand: currentPlayer[i].hand,
+          }));
         }
-      })
-      .catch((err) => {
-        console.error("Error:", err);
+      }
+    });
+
+    return () => {
+      Socket.off("cardsDealt");
+    };
+  }, []); // Empty dependency array means this runs once on mount
+
+  const handlePress = async () => {
+    try {
+      setInProgress(true);
+      const player: Card[][] = [[], []];
+
+      const deckData = await getNewDeck();
+      const deck = await drawCard(deckData.deck_id, 52);
+      
+      deck.forEach((card: Card, index: number) => {
+        player[index % 2].push(card);
       });
+
+      // Emit after cards are ready
+      Socket.emit("distributeCards", { roomName, hands: player });
+      
+    } catch (err) {
+      console.error("Error in handlePress:", err);
+      setInProgress(false);
+    }
   };
 
   useEffect(() => {
@@ -109,7 +110,7 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
             */
   return (
     <View>
-      {inProgress === false ? (
+      {inProgress === false && players.length === 2 ? (
         <TouchableOpacity onPress={handlePress}>
           <View style={styles.container}>
             <Text style={styles.text}>Start</Text>
@@ -119,7 +120,7 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
             />
           </View>
         </TouchableOpacity>
-      ) : null}
+      ) : <Text>Waiting for other players</Text>}
       {inProgress === true ? (
         <TouchableOpacity onPress={handleEndGame}>
           <View style={styles.container}>
