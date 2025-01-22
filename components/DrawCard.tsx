@@ -42,10 +42,12 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
   useEffect(() => {
     // Set up listener before any cards are dealt
     Socket.on("cardsDealt", (data: any) => {
+
       const currentPlayer = data.players;
+      console.log(currentPlayer, 'current Player')
       for (let i = 0; i < currentPlayer.length; i++) {
         if (currentPlayer[i].username === user?.username) {
-          console.log("Received cards for:", currentPlayer[i].username);
+          console.log("Received cards for:", currentPlayer[i]);
           setUser((prevUser: User) => ({
             ...prevUser,
             hand: currentPlayer[i].hand,
@@ -53,15 +55,21 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
         }
       }
     });
+    //          console.log(currentPlayer[i].cardCount, 'current Player')
 
     return () => {
       Socket.off("cardsDealt");
     };
-  }, []); // Empty dependency array means this runs once on mount
+  }, []); 
 
   const handlePress = async () => {
     try {
-      setInProgress(true);
+      setInProgress(true);  
+      Socket.emit("startGame", roomName, (response: any) => {
+        if (response.success) {
+          console.log('game started')
+        }
+      })
       const player: Card[][] = [[], []];
 
       const deckData = await getNewDeck();
@@ -72,6 +80,7 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
       });
 
       // Emit after cards are ready
+
       Socket.emit("distributeCards", { roomName, hands: player });
       
     } catch (err) {

@@ -32,9 +32,9 @@ export const DisplayCards: React.FC = () => {
   //   console.log("cards to discard:", cardsToDiscard);
   // }, [cardsToDiscard]);
 
-  useEffect(() => {
-    console.log("discard pile:", discardPile);
-  }, [discardPile]);
+  // useEffect(() => {
+  //   console.log("discard pile:", discardPile);
+  // }, [discardPile]);
 
   const handleCardPress = (index: number) => {
     // Limit selection to 4 cards
@@ -53,32 +53,45 @@ export const DisplayCards: React.FC = () => {
   };
 
   const handleSubmit = (selectedCards: number[]) => {
-    let allCardsToDiscard = []
+    let allCardsToDiscard = [];
     for(let i = cards.length - 1; i>=0; i--){
       if(selectedCards.includes(i)){
-       allCardsToDiscard.push(cards[i])
+        allCardsToDiscard.push(cards[i]);
       }
     }
     
-    setCardsToDiscard(allCardsToDiscard)
-    const newHand = cards.filter(element=> !allCardsToDiscard.includes(element))
-    setCards(newHand)
-    setSelectedCards([])
-    setUser((prevUser: User) => {
-      return {
-        ...prevUser,
-        hand: newHand,
-      };
+    // Update local hand first
+    const newHand = cards.filter(element => !allCardsToDiscard.includes(element));
+    setCards(newHand);
+    setSelectedCards([]);
+    setUser((prevUser: User) => ({
+      ...prevUser,
+      hand: newHand,
+    }));
+  
+    // Emit directly to socket without setting discardPile state
+    Socket.emit("discardPile", {
+      roomName,
+      discardedCards: allCardsToDiscard
+    }, (response: any) => {
+      if (!response.success) {
+        console.error("Failed to update discard pile:", response.message);
+      }
     });
-    setDiscardPile((prevPile: any) => [...prevPile, ...allCardsToDiscard]);
-  }
+  };
+  
+  // Remove the useEffect that watches discardPile changes
+  // Keep only the listener for updates:
   useEffect(() => {
-    
-    // Socket.emit("endTurn", roomName)
-
-    // Socket.emit("discardPile", cardsToDiscard)
-
-  }, [cardsToDiscard]);
+    Socket.on("discardPileUpdated", (data: { discardPile: Card[], lastDiscarded: Card[] }) => {
+      console.log("Received updated discard pile:", data);
+      setDiscardPile(data.discardPile);
+    });
+  
+    return () => {
+      Socket.off("discardPileUpdated");
+    };
+  }, []);
 
   useEffect(()=>{
     setCards(user?.hand)
@@ -126,9 +139,9 @@ export const DisplayCards: React.FC = () => {
 const styles = StyleSheet.create({
   submitButton: {
     position: "absolute",
-    top: -height/8,
-    left: -width/100, 
-    height: 50,
+    top: -100,
+    left: 0, 
+    height: 100,
     width: 100,
     backgroundColor: "white",
     justifyContent: "center"
