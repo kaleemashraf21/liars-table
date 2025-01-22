@@ -99,7 +99,7 @@ const JoinGame = () => {
       {/* Back Icon at top-right corner */}
       <TouchableOpacity
         style={styles.backIconContainer}
-        onPress={() => router.push("/creategame")}
+        onPress={() => router.push("/home")}
       >
         <Ionicons name="arrow-back-circle-outline" size={40} color="#333" />
       </TouchableOpacity>
@@ -118,7 +118,6 @@ const JoinGame = () => {
           </TouchableOpacity>
         </View>
       )}
-      {/* Title: Available Rooms */}
       <Text style={styles.title}>Available Rooms</Text>
       {/* Game Room Dropdown */}
       <Pressable
@@ -208,32 +207,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 16,
+    padding: 15,
     backgroundColor: "#F7F7F7",
   },
   backIconContainer: {
     position: "absolute",
-    top: 50,
-    left: 25,
+    top: 85,
+    left: 15,
     padding: 10,
-  },
-  backHomeText: {
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 5,
-    color: "#333",
   },
   avatarContainer: {
     position: "absolute",
-    top: 40,
-    right: 14,
+    top: 70,
+    right: 15,
     backgroundColor: "transparent",
     padding: 10,
   },
   logoutContainer: {
     position: "absolute",
-    bottom: 100,
-    right: 16,
+    top: 135,
+    right: 15,
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 6,
@@ -244,7 +237,7 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: "#9C1C1C",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "bold",
     marginLeft: 10,
   },
