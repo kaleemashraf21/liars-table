@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
@@ -15,8 +15,11 @@ import GameRules from "./GamesRules";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { router } from "expo-router";
-import { PlayerHand } from "./PlayerHand";
+// import { PlayerHand } from "./PlayerHand";
 import { useLocalSearchParams } from "expo-router";
+import { UserContext, User } from "@/Contexts/UserContexts";
+import { DisplayCards } from "./DisplayCards";
+import { PlayerHand } from "./PlayerHand";
 
 const { width, height } = Dimensions.get("window");
 
@@ -63,10 +66,23 @@ const PlayingTable: React.FC = () => {
   const params = useLocalSearchParams();
   const roomName = params.roomName as string;
   const [currentTurn, setCurrentTurn] = useState<Player | null>(null);
-  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(
-    null
-  );
+  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
   const fadeAnim = useState(new Animated.Value(0))[0];
+    const userContext = useContext(UserContext);
+  if (!userContext) {
+    throw new Error("UserContext is undefined");
+  }
+  const { user, setUser } = userContext;
+  // const [refresh, setRefresh] = useState<boolean>(false)
+  // const [cardCount, setCardCount] = useState<any>('')
+
+  // setCardCount((playersCardsCount) => {
+  //   console.log(playersCardsCount)
+  // })
+
+  const callBullshit = () => {
+    console.log('bullshit')
+  }
 
   useEffect(() => {
     console.log("PlayingTable mounted with roomName:", roomName);
@@ -109,8 +125,8 @@ const PlayingTable: React.FC = () => {
     };
   }, [roomName]);
 
-
   const showStatusMessage = (message: string, type: "error" | "info") => {
+    
     setStatusMessage({ message, type });
 
     Animated.sequence([
@@ -164,7 +180,6 @@ const PlayingTable: React.FC = () => {
     };
   }, [roomName]);
 
-
   // Debug: log players state changes
   useEffect(() => {
     console.log("Players state updated:", players);
@@ -178,6 +193,12 @@ const PlayingTable: React.FC = () => {
       Socket.emit("leaveRoom", roomName, (response: any) => {
         console.log("Leave room response:", response);
         if (response.success) {
+          setUser((prevUser: User) => {
+            return {
+              ...prevUser,
+              hand: [],
+            };
+          });
           router.push("/joingame");
         } else {
           console.error("failed to leave room:", response.message);
@@ -252,6 +273,10 @@ const PlayingTable: React.FC = () => {
         <PlayerSlot position="top" player={players[0] || null} />
       </View>
 
+      <TouchableOpacity onPress={callBullshit}>
+              <Text style={styles.bullshitButton}>BULLSHIT</Text>
+      </TouchableOpacity>
+
       {/* Right player (second to join) */}
       <View style={styles.right}>
         <PlayerSlot position="right" player={players[1] || null} />
@@ -259,14 +284,11 @@ const PlayingTable: React.FC = () => {
 
       {/* Center game area */}
       <View style={styles.deck}>
-        <DrawButton players={players} />
+        <DrawButton players={players} /> {/* playersCardsCount={playersCardsCount} */}
         {/* <DeckArea /> */}
       </View>
 
-          {/* DRAW BUTTON IS HERE /////////////////////////////////////////////////////////////////////////////////// */}
-
-
-
+      {/* DRAW BUTTON IS HERE /////////////////////////////////////////////////////////////////////////////////// */}
 
       {/* Bottom player (third to join) */}
       <View style={styles.bottom}>
@@ -279,7 +301,7 @@ const PlayingTable: React.FC = () => {
       </View>
 
       {/* Player's hand */}
-      <PlayerHand />
+      <PlayerHand/>
 
       {/* Rules Info Button */}
       <TouchableOpacity style={styles.infoButton} onPress={showModal}>
@@ -366,6 +388,15 @@ const styles = StyleSheet.create({
     right: 20,
     backgroundColor: "#4B5563",
     borderRadius: 50,
+    padding: 10,
+    elevation: 5,
+  },
+  bullshitButton: {
+    position: "absolute",
+    bottom: -500,
+    right: 300,
+    backgroundColor: "white",
+    borderRadius: 10,
     padding: 10,
     elevation: 5,
   },
