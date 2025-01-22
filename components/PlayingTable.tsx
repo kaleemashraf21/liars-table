@@ -7,6 +7,7 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
+  Animated,
 } from "react-native";
 import { Socket } from "./socketConfig";
 import { DrawButton } from "./DrawCard";
@@ -31,6 +32,16 @@ interface SocketPlayerJoinedPayload {
   players: Player[];
 }
 
+interface StatusMessage {
+  message: string;
+  type: "error" | "info";
+}
+
+interface TurnUpdateData {
+  currentPlayer: Player;
+  currentTurnIndex: number;
+}
+
 const PlayerSlot: React.FC<{
   player: Player | null;
   position: string;
@@ -52,6 +63,11 @@ const PlayingTable: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const params = useLocalSearchParams();
   const roomName = params.roomName as string;
+  const [currentTurn, setCurrentTurn] = useState<Player | null>(null);
+  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(
+    null
+  );
+  const fadeAnim = useState(new Animated.Value(0))[0];
 
   useEffect(() => {
     console.log("PlayingTable mounted with roomName:", roomName);
@@ -79,10 +95,43 @@ const PlayingTable: React.FC = () => {
       }
     });
 
+    Socket.on(
+      "turnUpdate",
+      ({ currentPlayer, currentTurnIndex }: TurnUpdateData) => {
+        console.log("Turn updated", currentPlayer);
+        setCurrentTurn(currentPlayer);
+      }
+    );
+
     return () => {
       Socket.off("playerJoined");
+      Socket.off("turnUpdate");
+      Socket.off("notYourTurn");
     };
   }, [roomName]);
+
+  const showStatusMessage = (message: string, type: "error" | "info") => {
+    setStatusMessage({ message, type });
+
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.delay(2000),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setStatusMessage(null);
+    });
+  };
+  Socket.on("notYourTurn", () => {
+    showStatusMessage("It's not your turn!", "error");
+  });
 
   // Debug: log players state changes
   useEffect(() => {
@@ -104,6 +153,22 @@ const PlayingTable: React.FC = () => {
       });
     }
   };
+
+  // const handleEndTurn = () => { // here is the logic for ending a turn. Decide what tbutton onPresses to this function to being process of ending the turn.
+  //   Socket.emit("endTurn",
+  //     {
+  //       // insert array of objects here that will contain the cards we selected. See API console logs for reference.
+  //     }
+  //     (response: any) => {
+  //       if (response.success) {
+  //         // setSelectedCards([]); // Reset selected cards via a state
+  //         // showStatusMessage("Turn ended", 'info');
+  //       } else {
+  //        // showStatusMessage(response.message, 'error'); logic if error
+  //       }
+  //     }
+  //   );
+  // };
 
   useEffect(() => {
     console.log("Setting up socket listeners for room:", roomName);
