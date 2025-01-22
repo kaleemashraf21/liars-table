@@ -4,7 +4,7 @@ const connectionOptions = {
   transports: ["websocket", "polling"],
   autoConnect: false,
 };
-export const Socket = io("", connectionOptions); // replace ip address
+export const Socket = io("https://liars-table-be.onrender.com", connectionOptions); // replace ip address
 
 // http://172.21.88.100
 // http://192.168.0.19:8080
