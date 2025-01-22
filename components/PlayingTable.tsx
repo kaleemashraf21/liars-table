@@ -16,9 +16,6 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { router } from "expo-router";
 import { PlayerHand } from "./PlayerHand";
-
-import GameRules from "./GamesRules";
-import Icon from "react-native-vector-icons/FontAwesome";
 import { useLocalSearchParams } from "expo-router";
 
 
@@ -59,15 +56,14 @@ const PlayingTable: React.FC = () => {
   const roomName = params.roomName as string;
 
 
-  const [players, setPlayers] = useState<Players>({
-    top: "Player 3",
-    left: "Player 2",
-    right: "Player 4",
-    bottom: "Player 1",
-  });
+  // const [players, setPlayers] = useState<Players>({
+  //   top: "Player 3",
+  //   left: "Player 2",
+  //   right: "Player 4",
+  //   bottom: "Player 1",
+  // });
 
   // info button
-  const [modalVisible, setModalVisible] = useState(false);
 
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);

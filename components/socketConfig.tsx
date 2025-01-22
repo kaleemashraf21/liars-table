@@ -4,10 +4,10 @@ const connectionOptions = {
   transports: ["websocket", "polling"],
   autoConnect: false,
 };
-export const Socket = io("http://192.168.0.19:8080", connectionOptions); // replace ip address
+export const Socket = io("", connectionOptions); // replace ip address
 
 // http://172.21.88.100
-
+// http://192.168.0.19:8080
 // const port = process.env.PORT || 8080;
 // server.listen(port, () => {
 //   console.log(`Server running on port ${port}`);
