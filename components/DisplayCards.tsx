@@ -73,8 +73,6 @@ export const DisplayCards: React.FC = () => {
       };
     });
     setDiscardPile((prevPile: any) => [...prevPile, ...allCardsToDiscard]);
-
-
   }
   useEffect(() => {
     
@@ -151,6 +149,7 @@ const styles = StyleSheet.create({
   },
   card: {
     position: "absolute", // Stack cards on top of each other
+    scale: 0.8,
     width: 100,
     height: 150,
     backgroundColor: "white",
