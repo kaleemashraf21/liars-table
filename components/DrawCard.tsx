@@ -61,7 +61,7 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
           });
         });
       })
-      .then((currentPlayer) => {
+      .then((currentPlayer: any) => {
         // console.log(currentPlayer, 'currentPlayer')
         // console.log(currentPlayer, 'currentPlayer')
         for (let i = 0; i < currentPlayer.length; i++) {
