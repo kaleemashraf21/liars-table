@@ -61,12 +61,12 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
           });
         });
       })
-      .then((currentPlayer) => {
+      .then((currentPlayer: any) => {
         // console.log(currentPlayer, 'currentPlayer')
         // console.log(currentPlayer, 'currentPlayer')
         for (let i = 0; i < currentPlayer.length; i++) {
           if (currentPlayer[i].username === user?.username) {
-            console.log(currentPlayer[i])
+            console.log(currentPlayer[i]);
             setUser((prevUser: User) => ({
               ...prevUser,
               hand: currentPlayer[i].hand,
