@@ -21,7 +21,7 @@ export const DisplayCards: React.FC = () => {
     throw new Error("UserContext is undefined");
   }
   const { user, setUser } = userContext;
-  const [cards, setCards] = useState<Card[]>(user.hand || []);
+  const [cards, setCards] = useState<Card[]>(user?.hand || []);
   const [selectedCards, setSelectedCards] = useState<number[]>([]); // Track selected card indexes
   const params = useLocalSearchParams();
   const [cardsToDiscard, setCardsToDiscard] = useState<Card[]>([]);
