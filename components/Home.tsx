@@ -3,12 +3,6 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { UserContext } from "../Contexts/UserContexts";
 import { auth } from "@/firebaseConfig";
 import { router } from "expo-router";
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-} from "react-native-popup-menu";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 const HomeScreen = () => {
@@ -74,20 +68,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 16,
+    padding: 15,
     backgroundColor: "#f7f7f7",
   },
   avatarContainer: {
     position: "absolute",
-    top: 20,
-    right: 14,
+    top: 70,
+    right: 15,
     backgroundColor: "transparent",
     padding: 10,
   },
   logoutContainer: {
     position: "absolute",
-    top: 85,
-    right: 16,
+    top: 135,
+    right: 15,
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 6,
@@ -98,7 +92,7 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: "#9C1C1C",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "bold",
     marginLeft: 10,
   },

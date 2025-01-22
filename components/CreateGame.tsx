@@ -12,11 +12,12 @@ import { auth } from "../firebaseConfig";
 import { Socket } from "./socketConfig";
 import { router } from "expo-router";
 import Ionicons from "react-native-vector-icons/Ionicons";
-export const CreateGame = ({ navigation }: { navigation: any }) => {
+export const CreateGame = () => {
   const [password, setPassword] = useState("");
   const [roomName, setRoomName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const userContext = useContext(UserContext);
+  const [isLogoutVisible, setIsLogoutVisible] = useState(false);
   if (!userContext) {
     throw new Error("UserContext is undefined");
   }
@@ -64,9 +65,13 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
     router.push("/joingame");
   };
   const handleLogOut = async () => {
+    Socket.disconnect();
     await auth.signOut();
     setUser(null);
     router.push("/signin");
+  };
+  const toggleLogoutVisibility = () => {
+    setIsLogoutVisible((prevState) => !prevState);
   };
   return (
     <View style={styles.container}>
@@ -77,10 +82,21 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
       >
         <Ionicons name="arrow-back-circle-outline" size={40} color="#333" />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.avatarContainer} onPress={handleLogOut}>
+      <TouchableOpacity
+        style={styles.avatarContainer}
+        onPress={toggleLogoutVisibility}
+      >
         <Ionicons name="person-circle-outline" size={60} color="#333" />
       </TouchableOpacity>
-      {/* Title */}
+
+      {isLogoutVisible && (
+        <View style={styles.logoutContainer}>
+          <TouchableOpacity onPress={handleLogOut} style={styles.logoutItem}>
+            <Ionicons name="log-out-outline" size={24} color="#9C1C1C" />
+            <Text style={styles.logoutText}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       <Text style={styles.title}>Create New Game</Text>
       {/* Room Name Input */}
       <TextInput
@@ -126,27 +142,39 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 16,
+    padding: 15,
     backgroundColor: "#F7F7F7",
   },
   backIconContainer: {
     position: "absolute",
-    top: 50,
+    top: 85,
     left: 20,
     padding: 10,
   },
-  backHomeText: {
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 5,
-    color: "#333",
-  },
   avatarContainer: {
     position: "absolute",
-    top: 40,
-    right: 20,
+    top: 70,
+    right: 15,
     backgroundColor: "transparent",
     padding: 10,
+  },
+  logoutContainer: {
+    position: "absolute",
+    top: 135,
+    right: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 6,
+  },
+  logoutItem: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  logoutText: {
+    color: "#9C1C1C",
+    fontSize: 15,
+    fontWeight: "bold",
+    marginLeft: 10,
   },
   title: {
     fontSize: 30,
