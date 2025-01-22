@@ -1,6 +1,6 @@
 export interface Players {
-  top: string;
-  left: string;
-  right: string;
-  bottom: string;
+  top: string | null;
+  left: string | null;
+  right: string | null;
+  bottom: string | null;
 }

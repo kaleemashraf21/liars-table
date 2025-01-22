@@ -57,14 +57,33 @@ const JoinGame = () => {
   };
 
   const attemptJoinRoom = (roomName: string, password: string | null) => {
-    Socket.emit("joinRoom", roomName, password, (response: any) => {
-      if (response.success) {
-        router.push("/Game");
-      } else {
-        console.error("Failed to join room:", response.message);
-        alert(response.message);
+    if (user === null) {
+      console.error("User data is missing. Cannot join room.");
+      return;
+    }
+
+    Socket.emit(
+      "joinRoom",
+      roomName,
+      {
+        password,
+        username: user.username,
+        avatar: user.avatar,
+      },
+      (response: any) => {
+        if (response.success) {
+          console.log("Successfully joined the room:", response.message);
+          router.push({
+            pathname: "/Game",
+            params: { roomName: roomName },
+          });
+          console.log(user, "Sending user info to the joinRoom socket.");
+        } else {
+          console.error("Failed to join room:", response.message);
+          alert(response.message);
+        }
       }
-    });
+    );
   };
 
   const handlePasswordSubmit = () => {

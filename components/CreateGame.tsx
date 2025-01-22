@@ -23,8 +23,19 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
       return;
     }
 
+    if (!user || !user.username || !user.avatar) {
+      Alert.alert("Error", "User data is missing. Please log in again.");
+      return;
+    }
+
     setIsLoading(true);
-    const room = { password: password, roomName: roomName.trim() };
+
+    const room = {
+      password: password || null,
+      roomName: roomName.trim(),
+      username: user.username,
+      avatar: user.avatar,
+    };
 
     console.log("Submitting createRoom request with data:", room);
 
@@ -36,12 +47,13 @@ export const CreateGame = ({ navigation }: { navigation: any }) => {
         setIsLoading(false);
 
         if (response.success) {
-          // Clear form
           setPassword("");
           setRoomName("");
-
-          // Navigate to game board
-          router.push("/Game");
+          // Update to pass roomName as a parameter
+          router.push({
+            pathname: "/Game",
+            params: { roomName: room.roomName },
+          });
         } else {
           Alert.alert("Error", response.message);
         }
