@@ -45,10 +45,8 @@ export const DisplayCards: React.FC = () => {
     // Toggle card selection
     setSelectedCards((prev) => {
       if (prev.includes(index)) {
-
         return prev.filter((id) => id !== index); // Deselect card
       } else {
-
         return [...prev, index]; // Select card
       }
     });
@@ -149,7 +147,6 @@ const styles = StyleSheet.create({
   },
   card: {
     position: "absolute", // Stack cards on top of each other
-    scale: 0.8,
     width: 100,
     height: 150,
     backgroundColor: "white",
@@ -160,6 +157,7 @@ const styles = StyleSheet.create({
     zIndex: 1, // Ensure cards are on top of each other by default
     justifyContent: "center",
     alignItems: "center",
+    scaleX: 0.8,
     // Highlight color when selected
     // backgroundColor: "white", // default color
   },

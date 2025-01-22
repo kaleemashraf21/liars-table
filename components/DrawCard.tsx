@@ -27,7 +27,6 @@ interface DrawButtonProps {
   players: Player[];
 }
 
-
 export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
   const [inProgress, setInProgress] = useState(false);
   const userContext = useContext(UserContext);
@@ -35,50 +34,63 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
     throw new Error("UserContext is undefined");
   }
   const { user, setUser } = userContext;
-
-
   const params = useLocalSearchParams();
-
-  // useEffect(() => {
-  //   console.log("Updated user:", user);
-  // }, [user]);
-
-
   const roomName = params.roomName as string;
-  const handlePress = () => { 
-
-
+  const handlePress = () => {
     setInProgress(true);
-    const player: Card[][] = [[], []]; //change back to array of 4 and index % 4
-    getNewDeck().then((data) => {
-      drawCard(data.deck_id, 52)
-        .then((deck) => {
-          deck.map((card: Card, index: number) => { 
-            player[index % 2].push(card);//change back to array of 4 and index % 4
+    const player: Card[][] = [[], []]; // Change back to array of 4 and index % 4
+
+    getNewDeck()
+      .then((data) => {
+        return drawCard(data.deck_id, 52);
+      })
+      .then((deck) => {
+        deck.map((card: Card, index: number) => {
+          player[index % 2].push(card); // Change back to array of 4 and index % 4
+        });
+
+        // Emit the event to distribute the cards
+        Socket.emit("distributeCards", { roomName, hands: player });
+
+        // Handle the cardsDealt event
+        return new Promise((resolve) => {
+          Socket.once("cardsDealt", (data: any) => {
+            // console.log(data, 'dataaaa');
+            const currentPlayer = data.players;
+            resolve(currentPlayer); // Resolve with currentPlayer
           });
-        })
-        .then(() => {
-          // get all players and their player number
-          // assign them a part of the array 0123 etc
-          // emit that to backend?
-          Socket.emit("distributeCards", {roomName, hands: player})
-          Socket.on("cardsDealt", (data: any) => {
-            console.log(data)
-            const currentPlayer = data.players
-          })
-          
+        });
+      })
+      .then((currentPlayer) => {
+        // console.log(currentPlayer, 'currentPlayer')
+        // console.log(currentPlayer, 'currentPlayer')
+        for (let i = 0; i < currentPlayer.length; i++) {
+          if (currentPlayer[i].username === user?.username) {
+            console.log(currentPlayer[i])
+            setUser((prevUser: User) => ({
+              ...prevUser,
+              hand: currentPlayer[i].hand,
+            }));
+          }
+        }
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+      });
+  };
+
+  useEffect(() => {
+    console.log("Updated user:", user);
+  }, [user]);
+
+  /*
           setUser((prevUser: User) => {
             return {
               ...prevUser,
               hand: [...prevUser.hand, ...player[0]],
             };
           });
-        })
-        .catch((err) => {
-          console.error("Error:", err);
-        });
-    });
-  };
+  */
 
   const handleEndGame = () => {
     setInProgress(false);
@@ -125,7 +137,7 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative', // Allows text to overlay the image
+    position: "relative", // Allows text to overlay the image
     width: 100,
     height: 150,
   },
@@ -139,13 +151,13 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   text: {
-    position: 'absolute', // Overlay the text on top of the image
-    top: '20%', // Center vertically
-    left: '80%', // Center horizontally
+    position: "absolute", // Overlay the text on top of the image
+    top: "20%", // Center vertically
+    left: "80%", // Center horizontally
     transform: [{ translateX: -50 }, { translateY: -50 }], // Adjust for text alignment
-    color: 'white', // Change text color for better visibility
-    fontWeight: 'bold',
-    textAlign: 'center',
-    zIndex: 1
+    color: "white", // Change text color for better visibility
+    fontWeight: "bold",
+    textAlign: "center",
+    zIndex: 1,
   },
 });
