@@ -11,8 +11,10 @@ import {
 } from "react-native";
 import { HandContext } from "../Contexts/PlayerHandContext";
 import { useContext } from "react";
+
 import { DisplayCards } from "./DisplayCards";
 import { Card, Cards } from "../@types/playerHand";
+
 import DragDropDemo from "./DragDrop";
 
 export const DiscardPile: React.FC = () => {
@@ -47,5 +49,7 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
 });
+
 //setCardsToDiscard by moving card into specific area
 //get details of card put in this area
+

@@ -11,10 +11,16 @@ import {
 import { Socket } from "./socketConfig";
 import { DrawButton } from "./DrawCard";
 import { DeckArea } from "./DeckArea";
+import GameRules from "./GamesRules";
+import Icon from "react-native-vector-icons/FontAwesome";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { router } from "expo-router";
 import { PlayerHand } from "./PlayerHand";
+
 import GameRules from "./GamesRules";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useLocalSearchParams } from "expo-router";
+
 
 const { width, height } = Dimensions.get("window");
 
@@ -46,13 +52,30 @@ const PlayerSlot: React.FC<{
 };
 
 const PlayingTable: React.FC = () => {
+
   const [players, setPlayers] = useState<Player[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const params = useLocalSearchParams();
   const roomName = params.roomName as string;
 
+
+  const [players, setPlayers] = useState<Players>({
+    top: "Player 3",
+    left: "Player 2",
+    right: "Player 4",
+    bottom: "Player 1",
+  });
+
+  // info button
+  const [modalVisible, setModalVisible] = useState(false);
+
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);
+
+  const leaveRoom = () => {
+    Socket.emit("leaveRoom");
+    router.push("/joingame");
+  };
 
   useEffect(() => {
     console.log("Setting up socket listeners for room:", roomName);
@@ -124,7 +147,15 @@ const PlayingTable: React.FC = () => {
         <Icon name="info-circle" size={30} color="white" />
       </TouchableOpacity>
 
+
       {/* Rules Modal */}
+
+      <TouchableOpacity style={styles.leaveRoomButton} onPress={leaveRoom}>
+            <Ionicons name="log-out-outline" size={24} />
+      </TouchableOpacity>
+
+      {/* Modal for Game Rules */}
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -166,7 +197,7 @@ const styles = StyleSheet.create({
   },
   deck: {
     position: "absolute",
-    backgroundColor: "purple",
+    // backgroundColor: "purple",
     width: 100,
     height: 100,
     display: "flex",
@@ -195,6 +226,15 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
     right: 20,
+    backgroundColor: "#4B5563",
+    borderRadius: 50,
+    padding: 10,
+    elevation: 5,
+  },
+  leaveRoomButton: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
     backgroundColor: "#4B5563",
     borderRadius: 50,
     padding: 10,
