@@ -2,51 +2,46 @@ import React, { useContext, useState, useEffect } from "react";
 import {
   View,
   Text,
-  Button,
   StyleSheet,
-  Pressable,
   Modal,
   TextInput,
+  TouchableOpacity,
+  Pressable,
 } from "react-native";
 import { UserContext } from "../Contexts/UserContexts";
 import { auth } from "../firebaseConfig";
 import { Socket } from "./socketConfig";
 import { router } from "expo-router";
-
+import Ionicons from "react-native-vector-icons/Ionicons";
 interface Room {
   roomName: string;
   playerCount: number;
   isPrivate: boolean;
   password?: string;
 }
-
 const JoinGame = () => {
   const [roomList, setRoomList] = useState<Room[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [password, setPassword] = useState("");
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+  const [isLogoutVisible, setIsLogoutVisible] = useState(false);
   const userContext = useContext(UserContext);
-
   if (!userContext) {
     throw new Error("UserContext is undefined");
   }
-
   const { user, setUser } = userContext;
-
   useEffect(() => {
     if (Socket.connected) {
       Socket.emit("requestActiveRooms");
     }
     Socket.on("activeRooms", (availableRooms: Room[]) => {
-      console.log("Received rooms:", availableRooms);
       setRoomList(availableRooms);
     });
     return () => {
       Socket.off("activeRooms");
     };
   }, []);
-
   const handleJoinRoom = (room: Room) => {
     if (room.isPrivate) {
       setSelectedRoom(room);
@@ -55,13 +50,11 @@ const JoinGame = () => {
       attemptJoinRoom(room.roomName, null);
     }
   };
-
   const attemptJoinRoom = (roomName: string, password: string | null) => {
     if (user === null) {
       console.error("User data is missing. Cannot join room.");
       return;
     }
-
     Socket.emit(
       "joinRoom",
       roomName,
@@ -72,20 +65,16 @@ const JoinGame = () => {
       },
       (response: any) => {
         if (response.success) {
-          console.log("Successfully joined the room:", response.message);
           router.push({
             pathname: "/Game",
             params: { roomName: roomName },
           });
-          console.log(user, "Sending user info to the joinRoom socket.");
         } else {
-          console.error("Failed to join room:", response.message);
           alert(response.message);
         }
       }
     );
   };
-
   const handlePasswordSubmit = () => {
     if (selectedRoom) {
       attemptJoinRoom(selectedRoom.roomName, password);
@@ -93,22 +82,45 @@ const JoinGame = () => {
       setIsPasswordModalVisible(false);
     }
   };
-
   const handleLogOut = async () => {
     Socket.disconnect();
     await auth.signOut();
     setUser(null);
     router.push("/signin");
   };
-
   const handleRefresh = () => {
     Socket.emit("requestActiveRooms");
   };
-
+  const toggleLogoutVisibility = () => {
+    setIsLogoutVisible((prevState) => !prevState);
+  };
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Available Games</Text>
+      {/* Back Icon at top-right corner */}
+      <TouchableOpacity
+        style={styles.backIconContainer}
+        onPress={() => router.push("/creategame")}
+      >
+        <Ionicons name="arrow-back-circle-outline" size={40} color="#333" />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.avatarContainer}
+        onPress={toggleLogoutVisibility}
+      >
+        <Ionicons name="person-circle-outline" size={60} color="#333" />
+      </TouchableOpacity>
 
+      {isLogoutVisible && (
+        <View style={styles.logoutContainer}>
+          <TouchableOpacity onPress={handleLogOut} style={styles.logoutItem}>
+            <Ionicons name="log-out-outline" size={24} color="#9C1C1C" />
+            <Text style={styles.logoutText}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      {/* Title: Available Rooms */}
+      <Text style={styles.title}>Available Rooms</Text>
+      {/* Game Room Dropdown */}
       <Pressable
         style={styles.dropdownHeader}
         onPress={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -117,7 +129,7 @@ const JoinGame = () => {
           Select a Game Room ({roomList.length} available)
         </Text>
       </Pressable>
-
+      {/* Available Rooms List */}
       {isDropdownOpen && (
         <View style={styles.dropdownContent}>
           {roomList.length > 0 ? (
@@ -139,17 +151,22 @@ const JoinGame = () => {
           )}
         </View>
       )}
-
+      {/* Button Container (Buttons below the room list) */}
       <View style={styles.buttonContainer}>
-        <Button title="Refresh Rooms" onPress={handleRefresh} />
-        <Button
-          title="Create New Game"
+        <TouchableOpacity
+          style={styles.createGameButton}
+          onPress={handleRefresh}
+        >
+          <Text style={styles.buttonText}>Refresh Rooms</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.createGameButton}
           onPress={() => router.push("/creategame")}
-        />
-        <Button title="Back to Home" onPress={() => router.push("/home")} />
+        >
+          <Text style={styles.buttonText}>Create New Game</Text>
+        </TouchableOpacity>
       </View>
-
-      {/* /password pop up area. */}
+      {/* Password Modal */}
       <Modal
         visible={isPasswordModalVisible}
         animationType="slide"
@@ -167,12 +184,18 @@ const JoinGame = () => {
               onChangeText={setPassword}
             />
             <View style={styles.modalButtons}>
-              <Button title="Submit" onPress={handlePasswordSubmit} />
-              <Button
-                title="Cancel"
-                color="red"
+              <TouchableOpacity
+                onPress={handlePasswordSubmit}
+                style={styles.modalButton}
+              >
+                <Text style={styles.buttonText}>Submit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={() => setIsPasswordModalVisible(false)}
-              />
+                style={[styles.modalButton, { backgroundColor: "red" }]}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -180,21 +203,60 @@ const JoinGame = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: "#F7F7F7",
+  },
+  backIconContainer: {
+    position: "absolute",
+    top: 50,
+    left: 25,
+    padding: 10,
+  },
+  backHomeText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 5,
+    color: "#333",
+  },
+  avatarContainer: {
+    position: "absolute",
+    top: 40,
+    right: 14,
+    backgroundColor: "transparent",
+    padding: 10,
+  },
+  logoutContainer: {
+    position: "absolute",
+    bottom: 100,
+    right: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 6,
+  },
+  logoutItem: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  logoutText: {
+    color: "#9C1C1C",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginLeft: 10,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
+    fontSize: 30,
+    fontFamily: "Vanilla-Whale",
+    marginBottom: 10,
+    color: "#333",
     textAlign: "center",
   },
   dropdownHeader: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#F0F0F0",
     padding: 15,
     borderRadius: 8,
     marginBottom: 10,
@@ -209,6 +271,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     maxHeight: 300,
+    width: "100%",
   },
   roomItem: {
     padding: 15,
@@ -220,18 +283,35 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   roomInfo: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 4,
+    fontSize: 12,
+    color: "#888",
   },
   noRooms: {
     padding: 15,
     textAlign: "center",
-    color: "#666",
+    color: "#888",
   },
   buttonContainer: {
-    marginTop: 20,
-    gap: 10,
+    marginTop: 30,
+    gap: 15,
+    width: "100%",
+    alignItems: "center",
+  },
+  createGameButton: {
+    backgroundColor: "#D2692F",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+    elevation: 3,
+    width: "80%",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   modalContainer: {
     flex: 1,
@@ -240,29 +320,36 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    width: "80%",
     backgroundColor: "#fff",
     padding: 20,
-    borderRadius: 10,
-    alignItems: "center",
+    borderRadius: 8,
+    width: "80%",
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 15,
+    textAlign: "center",
   },
   passwordInput: {
-    width: "100%",
-    borderWidth: 1,
+    height: 40,
     borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
+    borderWidth: 1,
     marginBottom: 20,
+    paddingHorizontal: 10,
+    borderRadius: 5,
   },
   modalButtons: {
     flexDirection: "row",
-    gap: 10,
+    justifyContent: "space-between",
+  },
+  modalButton: {
+    backgroundColor: "#D2692F",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    width: "48%",
+    alignItems: "center",
   },
 });
-
 export default JoinGame;
