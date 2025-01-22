@@ -59,7 +59,12 @@ export const DisplayCards: React.FC = () => {
         allCardsToDiscard.push(cards[i]);
       }
     }
-    
+  
+    console.log("About to discard cards:", {
+      roomName,
+      cardCount: allCardsToDiscard.length
+    });
+  
     // Update local hand first
     const newHand = cards.filter(element => !allCardsToDiscard.includes(element));
     setCards(newHand);
@@ -69,33 +74,34 @@ export const DisplayCards: React.FC = () => {
       hand: newHand,
     }));
   
-    // Emit directly to socket without setting discardPile state
+    // Emit to socket with logging
     Socket.emit("discardPile", {
       roomName,
       discardedCards: allCardsToDiscard
     }, (response: any) => {
+      console.log("Received response from discardPile emit:", response);
       if (!response.success) {
         console.error("Failed to update discard pile:", response.message);
       }
     });
   };
   
-  // Remove the useEffect that watches discardPile changes
-  // Keep only the listener for updates:
   useEffect(() => {
-    Socket.on("discardPileUpdated", (data: { discardPile: Card[], lastDiscarded: Card[] }) => {
-      console.log("Received updated discard pile:", data);
+    // Add listener with debug logging
+    const handleDiscardPileUpdate = (data: { discardPile: Card[], lastDiscarded: Card[] }) => {
+      console.log("Received discardPileUpdated event:", {
+        totalCards: data.discardPile.length,
+        lastDiscardedCount: data.lastDiscarded.length
+      });
       setDiscardPile(data.discardPile);
-    });
+    };
+  
+    Socket.on("discardPileUpdated", handleDiscardPileUpdate);
   
     return () => {
-      Socket.off("discardPileUpdated");
+      Socket.off("discardPileUpdated", handleDiscardPileUpdate);
     };
   }, []);
-
-  useEffect(()=>{
-    setCards(user?.hand)
-  }, [user?.hand])
 
   return (
     <View style={styles.bigContainer} >

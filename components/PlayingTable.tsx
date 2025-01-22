@@ -66,9 +66,11 @@ const PlayingTable: React.FC = () => {
   const params = useLocalSearchParams();
   const roomName = params.roomName as string;
   const [currentTurn, setCurrentTurn] = useState<Player | null>(null);
-  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
+  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(
+    null
+  );
   const fadeAnim = useState(new Animated.Value(0))[0];
-    const userContext = useContext(UserContext);
+  const userContext = useContext(UserContext);
   if (!userContext) {
     throw new Error("UserContext is undefined");
   }
@@ -81,8 +83,8 @@ const PlayingTable: React.FC = () => {
   // })
 
   const callBullshit = () => {
-    console.log('bullshit')
-  }
+    console.log("bullshit");
+  };
 
   useEffect(() => {
     console.log("PlayingTable mounted with roomName:", roomName);
@@ -126,7 +128,6 @@ const PlayingTable: React.FC = () => {
   }, [roomName]);
 
   const showStatusMessage = (message: string, type: "error" | "info") => {
-    
     setStatusMessage({ message, type });
 
     Animated.sequence([
@@ -268,31 +269,32 @@ const PlayingTable: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Top player (first to join) */}
-      <View style={styles.top}>
-        <PlayerSlot position="top" player={players[0] || null} />
-      </View>
-
       <TouchableOpacity onPress={callBullshit}>
-              <Text style={styles.bullshitButton}>BULLSHIT</Text>
+        <Text style={styles.bullshitButton}>BULLSHIT</Text>
       </TouchableOpacity>
-
-      {/* Right player (second to join) */}
-      <View style={styles.right}>
-        <PlayerSlot position="right" player={players[1] || null} />
-      </View>
 
       {/* Center game area */}
       <View style={styles.deck}>
-        <DrawButton players={players} /> {/* playersCardsCount={playersCardsCount} */}
+        <DrawButton players={players} />{" "}
+        {/* playersCardsCount={playersCardsCount} */}
         {/* <DeckArea /> */}
       </View>
 
       {/* DRAW BUTTON IS HERE /////////////////////////////////////////////////////////////////////////////////// */}
 
+      {/* Top player (first to join) */}
+      <View style={styles.top}>
+        <PlayerSlot position="top" player={players[0] || null} />
+      </View>
+
       {/* Bottom player (third to join) */}
       <View style={styles.bottom}>
         <PlayerSlot position="bottom" player={players[2] || null} />
+      </View>
+
+      {/* Right player (second to join) */}
+      <View style={styles.right}>
+        <PlayerSlot position="right" player={players[1] || null} />
       </View>
 
       {/* Left player (fourth to join) */}
@@ -301,7 +303,7 @@ const PlayingTable: React.FC = () => {
       </View>
 
       {/* Player's hand */}
-      <PlayerHand/>
+      <PlayerHand />
 
       {/* Rules Info Button */}
       <TouchableOpacity style={styles.infoButton} onPress={showModal}>
