@@ -18,6 +18,7 @@ import { Socket } from "./socketConfig";
 import { useLocalSearchParams } from "expo-router";
 import { Card } from "@/@types/playerHand";
 import { User } from "../Contexts/UserContexts";
+import { PlayerHand } from "./PlayerHand";
 
 const { width, height } = Dimensions.get("window");
 
