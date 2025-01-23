@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Animated,
-  Image
+  Image,
 } from "react-native";
 import { Socket } from "./socketConfig";
 import { DrawButton } from "./DrawCard";
@@ -51,41 +51,38 @@ const PlayerSlot: React.FC<{
 }> = ({ player, position }) => {
   const getAvatarContainerColor = () => {
     switch (position) {
-     case "top":
-      return "#FF6347"; // Red
-     case "right":
-      return "#4682B4"; // Blue
-     case "left":
-      return "#32CD32"; // Green
-     case "bottom":
-      return "#FFD700"; // Yellow
-     default:
-      return "#D3D3D3"; // Gray for empty slot
+      case "top":
+        return "#FF6347"; // Red
+      case "right":
+        return "#4682B4"; // Blue
+      case "left":
+        return "#32CD32"; // Green
+      case "bottom":
+        return "#FFD700"; // Yellow
+      default:
+        return "#D3D3D3"; // Gray for empty slot
     }
-   };
+  };
   return (
     <View style={styles.playerSlot}>
-    {/* Avatar Container */}
-    <View
-     style={[
-      styles.avatarContainer,
-      { backgroundColor: getAvatarContainerColor() },
-     ]}
-    >
-     {player && player.avatar ? (
-      <Image
-       source={{ uri: player.avatar }}
-       style={styles.avatar}
-      />
-     ) : (
-      <Icon name="user-circle" size={50} color="#fff" />
-     )}
+      {/* Avatar Container */}
+      <View
+        style={[
+          styles.avatarContainer,
+          { backgroundColor: getAvatarContainerColor() },
+        ]}
+      >
+        {player && player.avatar ? (
+          <Image source={{ uri: player.avatar }} style={styles.avatar} />
+        ) : (
+          <Icon name="user-circle" size={50} color="#fff" />
+        )}
+      </View>
+      {/* Player Name */}
+      <Text style={styles.playerName}>
+        {player ? player.username : `Waiting for player`}
+      </Text>
     </View>
-    {/* Player Name */}
-    <Text style={styles.playerName}>
-     {player ? player.username : `Waiting for player`}
-    </Text>
-   </View>
   );
 };
 
@@ -110,7 +107,6 @@ const PlayingTable: React.FC = () => {
   // setCardCount((playersCardsCount) => {
   //   console.log(playersCardsCount)
   // })
-
 
   useEffect(() => {
     console.log("PlayingTable mounted with roomName:", roomName);
@@ -293,12 +289,8 @@ const PlayingTable: React.FC = () => {
     };
   }, [roomName]);
 
-
-
   return (
     <View style={styles.container}>
-
-
       {/* Center game area */}
       <View style={styles.deck}>
         <DrawButton players={players} />
@@ -316,7 +308,7 @@ const PlayingTable: React.FC = () => {
       {/*Bottom player (third to join)*/}
       <View style={styles.bottom}>
         <PlayerSlot position="bottom" player={players[2] || null} />
-      </View> 
+      </View>
 
       {/* Right player (second to join) */}
       <View style={styles.right}>
@@ -333,7 +325,7 @@ const PlayingTable: React.FC = () => {
 
       {/* Rules Info Button */}
       <TouchableOpacity style={styles.infoButton} onPress={showModal}>
-        <Icon name="info-circle" size={30}/>
+        <Icon name="info-circle" size={30} />
       </TouchableOpacity>
 
       {/* Rules Modal */}
@@ -367,97 +359,97 @@ const PlayingTable: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-   flex: 1,
+    flex: 1,
   },
   playerSlot: {
-   position: "absolute",
-   alignItems: "center",
+    position: "absolute",
+    alignItems: "center",
   },
   avatarContainer: {
-   width: 60,
-   height: 60,
-   borderRadius: 50,
-   justifyContent: "center",
-   alignItems: "center",
+    width: 60,
+    height: 60,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
   },
   avatar: {
-   width: 50,
-   height: 50,
-   borderRadius: 50,
+    width: 50,
+    height: 50,
+    borderRadius: 50,
   },
   playerName: {
-   color: "white",
-   fontWeight: "bold",
-   marginTop: 8,
+    color: "white",
+    fontWeight: "bold",
+    marginTop: 8,
   },
   deck: {
-   position: "absolute",
-   width: 100,
-   height: 100,
-   display: "flex",
-   alignItems: "center",
-   justifyContent: "center",
-   top: height * 0.35,
-   left: width * 0.5 - 50,
+    position: "absolute",
+    width: 100,
+    height: 100,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    top: height * 0.35,
+    left: width * 0.5 - 50,
   },
   top: {
-   top: height * 0.0,
-   left: width * 0.5 - 50,
+    top: height * 0.05,
+    left: width * 0.5 - 55,
   },
   left: {
-   top: height * 0.35,
-   left: width * 0.05,
+    top: height * 0.35,
+    left: width * 0.05,
   },
   right: {
-   top: height * 0.35,
-   left: width * 0.7,
+    top: height * 0.35,
+    left: width * 0.7,
   },
   bottom: {
-   top: height * 0.7,
-   left: width * 0.5 - 50,
+    top: height * 0.7,
+    left: width * 0.5 - 55,
   },
   infoButton: {
-   position: "absolute",
-   bottom: 10,
-   right: 20,
-   backgroundColor: "#4B5563",
-   borderRadius: 50,
-   padding: 10,
-   elevation: 5,
+    position: "absolute",
+    bottom: 10,
+    right: 20,
+    backgroundColor: "#4B5563",
+    borderRadius: 50,
+    padding: 10,
+    elevation: 5,
   },
   leaveRoomButton: {
-   position: "absolute",
-   bottom: 10,
-   left: 20,
-   backgroundColor: "#4B5563",
-   borderRadius: 50,
-   padding: 10,
-   elevation: 5,
+    position: "absolute",
+    bottom: 10,
+    left: 20,
+    backgroundColor: "#4B5563",
+    borderRadius: 50,
+    padding: 10,
+    elevation: 5,
   },
   modalOverlay: {
-   flex: 1,
-   justifyContent: "center",
-   alignItems: "center",
-   backgroundColor: "rgba(0, 0, 0, 0.5)",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-   backgroundColor: "white",
-   padding: 20,
-   borderRadius: 10,
-   width: "80%",
-   maxHeight: "70%",
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    maxHeight: "70%",
   },
   closeButton: {
-   marginTop: 10,
-   backgroundColor: "#4B5563",
-   padding: 10,
-   borderRadius: 5,
-   alignItems: "center",
+    marginTop: 10,
+    backgroundColor: "#4B5563",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
   },
   closeButtonText: {
-   color: "white",
-   fontWeight: "bold",
+    color: "white",
+    fontWeight: "bold",
   },
- });
+});
 
 export default PlayingTable;
