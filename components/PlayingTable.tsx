@@ -82,9 +82,6 @@ const PlayingTable: React.FC = () => {
   //   console.log(playersCardsCount)
   // })
 
-  const callBullshit = () => {
-    console.log("bullshit");
-  };
 
   useEffect(() => {
     console.log("PlayingTable mounted with roomName:", roomName);
@@ -269,9 +266,7 @@ const PlayingTable: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={callBullshit}>
-        <Text style={styles.bullshitButton}>BULLSHIT</Text>
-      </TouchableOpacity>
+
 
       {/* Center game area */}
       <View style={styles.deck}>
@@ -287,10 +282,10 @@ const PlayingTable: React.FC = () => {
         <PlayerSlot position="top" player={players[0] || null} />
       </View>
 
-      {/* Bottom player (third to join) */}
+      {/* Bottom player (third to join)
       <View style={styles.bottom}>
         <PlayerSlot position="bottom" player={players[2] || null} />
-      </View>
+      </View> */}
 
       {/* Right player (second to join) */}
       <View style={styles.right}>
@@ -390,15 +385,6 @@ const styles = StyleSheet.create({
     right: 20,
     backgroundColor: "#4B5563",
     borderRadius: 50,
-    padding: 10,
-    elevation: 5,
-  },
-  bullshitButton: {
-    position: "absolute",
-    bottom: -500,
-    right: 300,
-    backgroundColor: "white",
-    borderRadius: 10,
     padding: 10,
     elevation: 5,
   },

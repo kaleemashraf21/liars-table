@@ -40,21 +40,63 @@ export const DisplayCards: React.FC = () => {
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [discardPile, setDiscardPile] = useState<Card[]>([]);
   const [currentPlayerTurn, setCurrentPlayerTurn] = useState<string>("");
+  const [lastTurn, setLastTurn] = useState<any>([])
+  const [needToPlay, setNeedToPlay] = useState<string>('ACE')
+  const [shouldvePlayedLastGo, setShouldvePlayedLastGo] = useState<string>('ACE')
+  const [bullshit, setBullshit] = useState<any>(null)
 
   // Extract room name from params
   const params = useLocalSearchParams();
   const roomName = params.roomName as string;
 
-  // Memoized card selection handler
+  // card selection handler
   const handleCardPress = useCallback((index: number) => {
     setSelectedCards((prev) => {
-      // Limit to 4 cards, toggle selection
       if (prev.includes(index)) {
         return prev.filter((id) => id !== index);
       }
       return prev.length >= 4 ? prev : [...prev, index];
     });
   }, []);
+
+  //call bullshit button
+  const callBullshit = () => {
+    console.log('need to play live', needToPlay)
+    console.log('should have played', shouldvePlayedLastGo)
+    console.log('did play', lastTurn)
+      // for (let i = 0; i < lastTurn.length; i++){
+      //   if (lastTurn[i].value !== needToPlay){
+      //     setBullshit(true)
+      //     console.log(lastTurn[i].value, 'last turn in looooooop')
+      //     console.log('bullshit: ', bullshit)
+      //     // break
+      //   }
+      //   else setBullshit(false)
+      //   console.log('bullshit: ', bullshit)
+      // }
+  };
+
+  // useEffect(() => {
+  //   console.log("last turn:", lastTurn);
+  // }, [lastTurn]);
+
+  // useEffect(() => {
+  //   console.log("need to play:", needToPlay);
+  // }, [needToPlay]);
+
+  // socket to send/receive card which needs to be played
+  useEffect(() => {
+    Socket.on("cardToPlay", (card: string) => {
+      setShouldvePlayedLastGo(needToPlay)
+      setNeedToPlay(card);
+    }), [needToPlay];
+  
+    // Cleanup listener on component unmount
+    return () => {
+      Socket.off("cardToPlay");
+    };
+  }, []);
+  
 
   // Optimized submit handler
   const handleSubmit = useCallback(() => {
@@ -72,6 +114,7 @@ export const DisplayCards: React.FC = () => {
     const newHand = cards.filter((_, index) => !selectedCards.includes(index));
 
     // Batch updates
+
     setCards(newHand);
     setSelectedCards([]);
     setUser((prevUser: User) => ({
@@ -99,6 +142,8 @@ export const DisplayCards: React.FC = () => {
     );
   }, [cards, selectedCards, roomName, setUser]);
 
+
+
   // Efficient socket listener management
   useEffect(() => {
     const handleDiscardPileUpdate = (data: {
@@ -107,11 +152,15 @@ export const DisplayCards: React.FC = () => {
     }) => {
       console.log("Discard pile update:", {
         totalCards: data.discardPile,
-        lastDiscardedCount: data.lastDiscarded,
+        lastDiscarded: data.lastDiscarded,
       });
+      setLastTurn(data.lastDiscarded)
       setDiscardPile(data.discardPile);
     };
 
+
+
+    // set State of last turn setLastTurn(data.lastDiscardedCount)
     Socket.on("discardPileUpdated", handleDiscardPileUpdate);
 
     return () => {
@@ -181,6 +230,7 @@ export const DisplayCards: React.FC = () => {
   return (
     <View style={styles.bigContainer}>
       <View style={styles.bigContainer}>
+      <Text style={styles.needToPlay}>need to play a: {needToPlay}</Text>
         <TouchableOpacity
           style={[
             styles.submitButton,
@@ -198,6 +248,9 @@ export const DisplayCards: React.FC = () => {
         >
           <Text>Submit</Text>
         </TouchableOpacity>
+        {lastTurn.length === 0 ? null : <TouchableOpacity onPress={callBullshit}>
+          <Text style={styles.bullshitButton}>BULLSHIT</Text>
+        </TouchableOpacity>}
       </View>
       <View style={styles.container}>{cardElements}</View>
     </View>
@@ -205,6 +258,15 @@ export const DisplayCards: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  bullshitButton: {
+    position: "absolute",
+    bottom: 100,
+    right: 100,
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 10,
+    elevation: 5,
+  },
   submitButton: {
     position: "absolute",
     top: -100,
@@ -214,6 +276,15 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     justifyContent: "center",
     opacity: 0.7, // Visual feedback for disabled state
+  },
+  needToPlay: {
+    position: "absolute",
+    bottom: 500,
+    right: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 10,
+    elevation: 5,
   },
   bigContainer: {
     flex: 1,
