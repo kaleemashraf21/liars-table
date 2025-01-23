@@ -296,7 +296,10 @@ export const DisplayCards: React.FC = () => {
             onPress={callBullshit}
             style={styles.bullshitButton}
           >
-            <Image source={require("../assets/images/bull.png")} />
+            <Image
+              source={require("../assets/images/bull.png")}
+              style={styles.bullShitContainer}
+            />
             <Text style={styles.bullshitButtonText}>BULLSH!T</Text>
           </TouchableOpacity>
         )}
@@ -307,6 +310,13 @@ export const DisplayCards: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  bullShitContainer: {
+    height: 100,
+    width: 100,
+    borderColor: "red",
+    position: "relative",
+    top: 20,
+  },
   bigContainer: {
     flex: 1,
     position: "relative",
@@ -355,7 +365,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   bullshitButton: {
-    backgroundColor: "red",
     borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 20,
