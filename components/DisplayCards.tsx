@@ -19,7 +19,7 @@ import { useLocalSearchParams } from "expo-router";
 import { Card } from "@/@types/playerHand";
 import { User } from "../Contexts/UserContexts";
 
-const { width } = Dimensions.get("window");
+const { width, height} = Dimensions.get("window");
 
 export const DisplayCards: React.FC = () => {
   // Robust context handling
@@ -245,8 +245,10 @@ export const DisplayCards: React.FC = () => {
 
   return (
     <View style={styles.bigContainer}>
-      <View style={styles.bigContainer}>
-      <Text style={styles.needToPlay}>need to play a: {needToPlay}</Text>
+      <View style={styles.controlSection}>
+        <View style={styles.needToPlayContainer}>
+      <Text style={styles.needToPlayText}>need to play a: {needToPlay}</Text>
+      </View>
         <TouchableOpacity
           style={[
             styles.submitButton,
@@ -262,84 +264,116 @@ export const DisplayCards: React.FC = () => {
             selectedCards.length === 0 || currentPlayerTurn !== Socket.id
           }
         >
-          <Text>Submit</Text>
+          <Text style={styles.submitButtonText}>Submit</Text>
         </TouchableOpacity>
-        {lastTurn.length === 0 ? null : <TouchableOpacity onPress={callBullshit}>
-          <Text style={styles.bullshitButton}>BULLSHIT</Text>
+        {lastTurn.length === 0 ? null : 
+        <TouchableOpacity onPress={callBullshit} style={styles.bullshitButton}>
+          <Text style={styles.bullshitButtonText}>BULLSHIT</Text>
         </TouchableOpacity>}
       </View>
-      <View style={styles.container}>{cardElements}</View>
+      <View style={styles.cardsContainer}>{cardElements}</View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  bullshitButton: {
-    position: "absolute",
-    bottom: 100,
-    right: 100,
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 10,
-    elevation: 5,
+  bigContainer: {
+   flex: 1,
+   position: "relative",
+  },
+  controlSection: {
+   position: "absolute",
+   top: height * 0.05, // Responsive positioning
+   right: width * 0.05, // Responsive positioning
+   zIndex: 100,
+   alignItems: "flex-end",
+  },
+  needToPlayContainer: {
+   backgroundColor: "white",
+   borderRadius: 10,
+   padding: 10,
+   marginBottom: 10,
+   elevation: 3,
+   shadowColor: "#000",
+   shadowOffset: { width: 0, height: 2 },
+   shadowOpacity: 0.1,
+   shadowRadius: 2,
+  },
+  needToPlayText: {
+   fontWeight: "bold",
+   color: "black",
+   fontSize: 14,
   },
   submitButton: {
-    position: "absolute",
-    top: -100,
-    left: 0,
-    height: 100,
-    width: 100,
-    backgroundColor: "white",
-    justifyContent: "center",
-    opacity: 0.7, // Visual feedback for disabled state
+   backgroundColor: "#28A745",
+   borderRadius: 10,
+   paddingVertical: 12,
+   paddingHorizontal: 20,
+   marginBottom: 10,
+   elevation: 3,
+   shadowColor: "#000",
+   shadowOffset: { width: 0, height: 2 },
+   shadowOpacity: 0.1,
+   shadowRadius: 2,
   },
-  needToPlay: {
-    position: "absolute",
-    bottom: 500,
-    right: 20,
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 10,
-    elevation: 5,
+  submitButtonText: {
+   color: "white",
+   fontSize: 16,
+   fontWeight: "bold",
+   textAlign: "center",
   },
-  bigContainer: {
-    flex: 1,
+  bullshitButton: {
+   backgroundColor: "red",
+   borderRadius: 10,
+   paddingVertical: 12,
+   paddingHorizontal: 20,
+   elevation: 3,
+   shadowColor: "#000",
+   shadowOffset: { width: 0, height: 2 },
+   shadowOpacity: 0.1,
+   shadowRadius: 2,
   },
-  container: {
-    position: "relative",
-    justifyContent: "center",
-    alignItems: "center",
-    height: 200,
-    width: "100%",
-    flexDirection: "row",
-    left: 50,
+  bullshitButtonText: {
+   color: "white",
+   fontSize: 16,
+   fontWeight: "bold",
+   textAlign: "center",
+  },
+  cardsContainer: {
+   position: "relative",
+   justifyContent: "center",
+   alignItems: "center",
+   height: 200,
+   width: "100%",
+   flexDirection: "row",
+   marginTop: height * 0.3, // Adjust to make room for control section
   },
   card: {
-    position: "absolute",
-    width: 100,
-    height: 150,
-    backgroundColor: "white",
-    borderWidth: 3,
-    borderRadius: 10,
-    borderBlockColor: "black",
-    overflow: "hidden",
-    zIndex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    scaleX: 0.8,
+   position: "absolute",
+   width: 100,
+   height: 150,
+   backgroundColor: "white",
+   borderWidth: 3,
+   borderRadius: 10,
+   borderColor: "black",
+   overflow: "hidden",
+   zIndex: 1,
+   justifyContent: "center",
+   alignItems: "center",
+   scaleX: 0.8,
   },
   cardText: {
-    position: "absolute",
-    top: 10,
-    left: 10,
-    color: "black",
-    fontSize: 12,
+   position: "absolute",
+   top: 10,
+   left: 10,
+   color: "black",
+   fontSize: 12,
   },
   cardImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+   width: "100%",
+   height: "100%",
+   resizeMode: "cover",
   },
-});
+ });
 
 export default DisplayCards;
