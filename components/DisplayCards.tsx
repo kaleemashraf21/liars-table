@@ -1,9 +1,9 @@
-import React, { 
-  useState, 
-  useContext, 
-  useEffect, 
-  useMemo, 
-  useCallback 
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  useMemo,
+  useCallback,
 } from "react";
 import {
   Image,
@@ -39,6 +39,7 @@ export const DisplayCards: React.FC = () => {
   // Controlled state for selected and discard logic
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [discardPile, setDiscardPile] = useState<Card[]>([]);
+  const [currentPlayerTurn, setCurrentPlayerTurn] = useState<string>("");
 
   // Extract room name from params
   const params = useLocalSearchParams();
@@ -60,16 +61,16 @@ export const DisplayCards: React.FC = () => {
     if (selectedCards.length === 0) return;
 
     // Create discard pile efficiently
-    const allCardsToDiscard = selectedCards.map(index => cards[index]);
-    
+    const allCardsToDiscard = selectedCards.map((index) => cards[index]);
+
     console.log("Discarding cards:", {
       roomName,
-      cardCount: allCardsToDiscard.length
+      cardCount: allCardsToDiscard.length,
     });
 
     // Update local state efficiently
     const newHand = cards.filter((_, index) => !selectedCards.includes(index));
-    
+
     // Batch updates
     setCards(newHand);
     setSelectedCards([]);
@@ -79,27 +80,34 @@ export const DisplayCards: React.FC = () => {
     }));
 
     // Socket emission with error handling
-    Socket.emit("discardPile", {
-      roomName,
-      discardedCards: allCardsToDiscard
-    }, (response: any) => {
-      if (!response.success) {
-        console.error("Discard pile update failed:", response.message);
-        // Optional: Revert local state if server update fails
-        setCards(cards);
+    Socket.emit(
+      "discardPile",
+      {
+        roomName,
+        discardedCards: allCardsToDiscard,
+      },
+      (response: any) => {
+        if (!response.success) {
+          console.error("Discard pile update failed:", response.message);
+          // Optional: Revert local state if server update fails
+          setCards(cards);
+        }
       }
-    });
+    );
+    Socket.emit("endTurn", roomName, (response: any) =>
+      console.log("Turn ended", response)
+    );
   }, [cards, selectedCards, roomName, setUser]);
 
   // Efficient socket listener management
   useEffect(() => {
-    const handleDiscardPileUpdate = (data: { 
-      discardPile: Card[], 
-      lastDiscarded: Card[] 
+    const handleDiscardPileUpdate = (data: {
+      discardPile: Card[];
+      lastDiscarded: Card[];
     }) => {
       console.log("Discard pile update:", {
         totalCards: data.discardPile,
-        lastDiscardedCount: data.lastDiscarded
+        lastDiscardedCount: data.lastDiscarded,
       });
       setDiscardPile(data.discardPile);
     };
@@ -108,6 +116,23 @@ export const DisplayCards: React.FC = () => {
 
     return () => {
       Socket.off("discardPileUpdated", handleDiscardPileUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleTurnUpdate = (data: {
+      currentPlayer: any;
+      currentTurnIndex: number;
+      lastPlayer: string;
+    }) => {
+      console.log("Turn updated:", data);
+      setCurrentPlayerTurn(data.currentPlayer.socketId);
+    };
+
+    Socket.on("turnUpdate", handleTurnUpdate);
+
+    return () => {
+      Socket.off("turnUpdate", handleTurnUpdate);
     };
   }, []);
 
@@ -121,49 +146,60 @@ export const DisplayCards: React.FC = () => {
   }, [user?.hand, cards.length]);
 
   // Memoized card rendering to prevent unnecessary re-renders
-  const cardElements = useMemo(() => 
-    cards.map((element, index) => (
-      <TouchableOpacity
-        key={`${index}-${element.code}`} // More stable key
-        style={[
-          styles.card,
-          {
-            left: (index - Math.floor(cards.length / 2)) * 25,
-            transform: selectedCards.includes(index)
-              ? [{ translateY: -10 }]
-              : [{ translateY: 0 }],
-            borderColor: selectedCards.includes(index)
-              ? 'rgba(0, 255, 0, 0.3)'
-              : 'white',
-          },
-        ]}
-        onPress={() => handleCardPress(index)}
-      >
-        <Text style={styles.cardText}>Card {index + 1}</Text>
-        <Image 
-          source={{ uri: element.image }} 
-          style={styles.cardImage} 
-          onError={(e) => console.error('Image load error', e.nativeEvent.error)}
-        />
-      </TouchableOpacity>
-    )), 
+  const cardElements = useMemo(
+    () =>
+      cards.map((element, index) => (
+        <TouchableOpacity
+          key={`${index}-${element.code}`} // More stable key
+          style={[
+            styles.card,
+            {
+              left: (index - Math.floor(cards.length / 2)) * 25,
+              transform: selectedCards.includes(index)
+                ? [{ translateY: -10 }]
+                : [{ translateY: 0 }],
+              borderColor: selectedCards.includes(index)
+                ? "rgba(0, 255, 0, 0.3)"
+                : "white",
+            },
+          ]}
+          onPress={() => handleCardPress(index)}
+        >
+          <Text style={styles.cardText}>Card {index + 1}</Text>
+          <Image
+            source={{ uri: element.image }}
+            style={styles.cardImage}
+            onError={(e) =>
+              console.error("Image load error", e.nativeEvent.error)
+            }
+          />
+        </TouchableOpacity>
+      )),
     [cards, selectedCards, handleCardPress]
   );
 
   return (
     <View style={styles.bigContainer}>
       <View style={styles.bigContainer}>
-        <TouchableOpacity 
-          style={styles.submitButton} 
+        <TouchableOpacity
+          style={[
+            styles.submitButton,
+            {
+              opacity:
+                selectedCards.length === 0 || currentPlayerTurn !== Socket.id
+                  ? 0.5
+                  : 0.7,
+            },
+          ]}
           onPress={handleSubmit}
-          disabled={selectedCards.length === 0}
+          disabled={
+            selectedCards.length === 0 || currentPlayerTurn !== Socket.id
+          }
         >
           <Text>Submit</Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.container}>
-        {cardElements}
-      </View>
+      <View style={styles.container}>{cardElements}</View>
     </View>
   );
 };
@@ -172,7 +208,7 @@ const styles = StyleSheet.create({
   submitButton: {
     position: "absolute",
     top: -100,
-    left: 0, 
+    left: 0,
     height: 100,
     width: 100,
     backgroundColor: "white",
@@ -180,7 +216,7 @@ const styles = StyleSheet.create({
     opacity: 0.7, // Visual feedback for disabled state
   },
   bigContainer: {
-    flex: 1
+    flex: 1,
   },
   container: {
     position: "relative",
@@ -189,7 +225,7 @@ const styles = StyleSheet.create({
     height: 200,
     width: "100%",
     flexDirection: "row",
-    left: 50
+    left: 50,
   },
   card: {
     position: "absolute",
