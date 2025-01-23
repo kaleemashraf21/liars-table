@@ -72,7 +72,7 @@ const SignInScreen = () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       const user = await fetchUserByEmail(email);
-      user.hand = []
+      user.hand = [];
       console.log("User data:", user);
 
       try {
@@ -83,7 +83,6 @@ const SignInScreen = () => {
         );
         return;
       }
-
 
       setUser(user);
       router.push("/home");
@@ -328,7 +327,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   closeButton: {
-    marginTop: 20,
+    marginTop: 10,
     alignItems: "center",
     justifyContent: "center",
     padding: 10,
