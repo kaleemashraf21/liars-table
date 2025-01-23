@@ -180,7 +180,7 @@ export const DisplayCards: React.FC = () => {
 
   return (
     <View style={styles.bigContainer}>
-      <View style={styles.bigContainer}>
+      <View style={styles.smallContainer}>
         <TouchableOpacity
           style={[
             styles.submitButton,
@@ -215,11 +215,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     opacity: 0.7, // Visual feedback for disabled state
   },
-  bigContainer: {
+  smallContainer: {
     flex: 1,
   },
   container: {
-    position: "relative",
+    position: "absolute",
     justifyContent: "center",
     alignItems: "center",
     height: 200,
