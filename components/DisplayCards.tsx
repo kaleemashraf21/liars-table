@@ -61,22 +61,47 @@ export const DisplayCards: React.FC = () => {
 
   // call bullshit button
   const callBullshit = () => {
-    console.log('bullshit', bullshit)
-    let calledBy = user?.username
-
-    // Socket.emit("bullshitPress", roomName, calledBy)
-
-    // if (bullshit) {
-
-    //   // push discard pile to players hand
-    //   // emit that to backend
-
-    // } else {
-    //   // push discard pile to whoever pressed button
-    //   // emit that to backend
-    // }
+    console.log('bullshit', bullshit);
+    console.log(roomName);
+    let challengerUsername = user?.username;
+    
+    Socket.emit("bullshitPress", 
+      { roomName, challengerUsername }, 
+      (response: any) => {
+        if (response.success) {
+          // Handle successful bullshit call
+          console.log('bullshit calleddddddddddddddddddddddd')
+          Socket.on("playerStatsUpdated", )
+        } else {
+          console.error("Bullshit call failed:", response.message);
+        }
+      }
+    );
   };
 
+  useEffect(() => {
+    const handlePlayerStatsUpdate = (data: { players: any[] }) => {
+      console.log("Received player stats update:", data);
+      const updatedPlayer = data.players.find(p => p.socketId === Socket.id);
+      if (updatedPlayer?.hand) {
+        console.log("Updating hand for player:", updatedPlayer.username);
+        console.log("New hand size:", updatedPlayer.hand.length);
+        setCards(updatedPlayer.hand);
+        setUser((prevUser: User) => ({
+          ...prevUser,
+          hand: updatedPlayer.hand,
+        }));
+      }
+    };
+  
+    // Attach listener for "playerStatsUpdated"
+    Socket.on("playerStatsUpdated", handlePlayerStatsUpdate);
+  
+    // Cleanup listener on component unmount
+    return () => {
+      Socket.off("playerStatsUpdated", handlePlayerStatsUpdate);
+    };
+  }, [Socket, setCards, setUser]);
 
 
 

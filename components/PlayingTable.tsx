@@ -282,10 +282,10 @@ const PlayingTable: React.FC = () => {
         <PlayerSlot position="top" player={players[0] || null} />
       </View>
 
-      {/* Bottom player (third to join)
+      {/* Bottom player (third to join) */}
       <View style={styles.bottom}>
         <PlayerSlot position="bottom" player={players[2] || null} />
-      </View> */}
+      </View>
 
       {/* Right player (second to join) */}
       <View style={styles.right}>
