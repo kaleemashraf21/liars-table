@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  ScrollView,
 } from "react-native";
 import { UserContext } from "@/Contexts/UserContexts";
 import { Socket } from "./socketConfig";
@@ -63,17 +64,18 @@ export const DisplayCards: React.FC = () => {
 
   // call bullshit button
   const callBullshit = () => {
-    console.log('bullshit', bullshit);
+    console.log("bullshit", bullshit);
     console.log(roomName);
     let challengerUsername = user?.username;
-    
-    Socket.emit("bullshitPress", 
-      { roomName, challengerUsername }, 
+
+    Socket.emit(
+      "bullshitPress",
+      { roomName, challengerUsername },
       (response: any) => {
         if (response.success) {
           // Handle successful bullshit call
-          console.log('bullshit calleddddddddddddddddddddddd')
-          Socket.on("playerStatsUpdated", )
+          console.log("bullshit calleddddddddddddddddddddddd");
+          Socket.on("playerStatsUpdated");
         } else {
           console.error("Bullshit call failed:", response.message);
         }
@@ -84,7 +86,7 @@ export const DisplayCards: React.FC = () => {
   useEffect(() => {
     const handlePlayerStatsUpdate = (data: { players: any[] }) => {
       console.log("Received player stats update:", data);
-      const updatedPlayer = data.players.find(p => p.socketId === Socket.id);
+      const updatedPlayer = data.players.find((p) => p.socketId === Socket.id);
       if (updatedPlayer?.hand) {
         console.log("Updating hand for player:", updatedPlayer.username);
         console.log("New hand size:", updatedPlayer.hand.length);
@@ -95,10 +97,10 @@ export const DisplayCards: React.FC = () => {
         }));
       }
     };
-  
+
     // Attach listener for "playerStatsUpdated"
     Socket.on("playerStatsUpdated", handlePlayerStatsUpdate);
-  
+
     // Cleanup listener on component unmount
     return () => {
       Socket.off("playerStatsUpdated", handlePlayerStatsUpdate);
@@ -379,6 +381,7 @@ const styles = StyleSheet.create({
   },
   card: {
     position: "absolute",
+    top: -360,
     width: 100,
     height: 150,
     backgroundColor: "white",
@@ -389,7 +392,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     justifyContent: "center",
     alignItems: "center",
-    scaleX: 0.8,
+    scaleX: 0.7,
   },
   cardText: {
     position: "absolute",

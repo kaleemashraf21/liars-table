@@ -305,7 +305,6 @@ const PlayingTable: React.FC = () => {
         <PlayerSlot position="top" player={players[0] || null} />
       </View>
 
-
       {/* Bottom player (third to join) */}
       <View style={styles.bottom}>
         <PlayerSlot position="bottom" player={players[2] || null} />
@@ -395,7 +394,7 @@ const styles = StyleSheet.create({
   },
   top: {
     top: height * 0.05,
-    left: width * 0.5 - 55,
+    left: width * 0.5 - 50,
   },
   left: {
     top: height * 0.35,
