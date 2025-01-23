@@ -72,13 +72,13 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
           console.log('game started')
         }
       })
-      const player: Card[][] = [[], [], [], []];
+      const player: Card[][] = [[], []];
 
       const deckData = await getNewDeck();
-      const deck = await drawCard(deckData.deck_id, 52);
+      const deck = await drawCard(deckData.deck_id, 26);
       
       deck.forEach((card: Card, index: number) => {
-        player[index % 4].push(card);
+        player[index % 2].push(card);
       });
 
       // Emit after cards are ready
@@ -123,7 +123,7 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
   return (
     <View>
               <View>
-      {inProgress === false && players.length === 4 ? (
+      {inProgress === false && players.length === 2 ? (
         <TouchableOpacity onPress={handlePress}>
           <View style={styles.container}>
             <Text style={styles.text}>Start</Text>
