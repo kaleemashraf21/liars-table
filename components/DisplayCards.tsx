@@ -59,26 +59,37 @@ export const DisplayCards: React.FC = () => {
     });
   }, []);
 
-  //call bullshit button
+  // call bullshit button
   const callBullshit = () => {
-    console.log('need to play live', needToPlay)
-    console.log('should have played', shouldvePlayedLastGo)
-    console.log('did play', lastTurn)
-      // for (let i = 0; i < lastTurn.length; i++){
-      //   if (lastTurn[i].value !== needToPlay){
-      //     setBullshit(true)
-      //     console.log(lastTurn[i].value, 'last turn in looooooop')
-      //     console.log('bullshit: ', bullshit)
-      //     // break
-      //   }
-      //   else setBullshit(false)
-      //   console.log('bullshit: ', bullshit)
-      // }
+    console.log('bullshit', bullshit)
+    let calledBy = user?.username
+
+    // Socket.emit("bullshitPress", roomName, calledBy)
+
+    // if (bullshit) {
+
+    //   // push discard pile to players hand
+    //   // emit that to backend
+
+    // } else {
+    //   // push discard pile to whoever pressed button
+    //   // emit that to backend
+    // }
   };
 
-  // useEffect(() => {
-  //   console.log("last turn:", lastTurn);
-  // }, [lastTurn]);
+
+
+
+  /* winning a game
+
+  if socket sends us everyones hands
+  if anyones hand.length === 0
+
+  */
+
+  useEffect(() => {
+    console.log("bullshit:", bullshit);
+  }, [bullshit]);
 
   // useEffect(() => {
   //   console.log("need to play:", needToPlay);
@@ -88,6 +99,8 @@ export const DisplayCards: React.FC = () => {
   useEffect(() => {
     Socket.on("cardToPlay", (card: string) => {
       setShouldvePlayedLastGo(needToPlay)
+      // shouldvePlayedLastGo = needToPlay
+      // needToPlay = math.random(........)
       setNeedToPlay(card);
     }), [needToPlay];
   
@@ -149,13 +162,16 @@ export const DisplayCards: React.FC = () => {
     const handleDiscardPileUpdate = (data: {
       discardPile: Card[];
       lastDiscarded: Card[];
+      isBullshit: boolean;
     }) => {
       console.log("Discard pile update:", {
         totalCards: data.discardPile,
         lastDiscarded: data.lastDiscarded,
+        isBullshit: data.isBullshit
       });
       setLastTurn(data.lastDiscarded)
-      setDiscardPile(data.discardPile);
+      setDiscardPile(data.discardPile)
+      setBullshit(data.isBullshit);
     };
 
 
