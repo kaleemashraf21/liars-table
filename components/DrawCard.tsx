@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Text,
+  Modal
 } from "react-native";
 import { useContext } from "react";
 import { Card, Cards } from "../@types/playerHand";
@@ -38,6 +39,7 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
   const { user, setUser } = userContext;
   const params = useLocalSearchParams();
   const roomName = params.roomName as string;
+  const [showWinnerImage, setShowWinnerImage] = useState(false);
   
   useEffect(() => {
     // Set up listener before any cards are dealt
@@ -76,7 +78,7 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
       const deck = await drawCard(deckData.deck_id, 52);
       
       deck.forEach((card: Card, index: number) => {
-        player[index % 2].push(card);
+        player[index % 4].push(card);
       });
 
       // Emit after cards are ready
@@ -93,14 +95,15 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
     console.log("Updated user:", user);
   }, [user]);
 
-  /*
-          setUser((prevUser: User) => {
-            return {
-              ...prevUser,
-              hand: [...prevUser.hand, ...player[0]],
-            };
-          });
-  */
+  useEffect(() => {
+    Socket.on("gameWon", () => {
+      setShowWinnerImage(true);
+    });
+  
+    return () => {
+      Socket.off("gameWon");
+    };
+  }, []);
 
   const handleEndGame = () => {
     setInProgress(false);
@@ -119,6 +122,7 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
             */
   return (
     <View>
+              <View>
       {inProgress === false && players.length === 2 ? (
         <TouchableOpacity onPress={handlePress}>
           <View style={styles.container}>
@@ -141,6 +145,31 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
           </View>
         </TouchableOpacity>
       ) : null}
+
+    {/* Existing code */}
+    
+    {showWinnerImage && (
+      <Modal 
+        visible={true} 
+        transparent={true}
+        onRequestClose={() => setShowWinnerImage(false)}
+      >
+        <View style={styles.modalContainer}>
+          <Image 
+            source={require('../assets/images/winner.jpg')} 
+            style={styles.winnerImage}
+            resizeMode="contain"
+          />
+          <TouchableOpacity 
+            onPress={() => setShowWinnerImage(false)}
+            style={styles.closeButton}
+          >
+            <Text>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    )}
+  </View>
     </View>
   );
 };
@@ -170,4 +199,20 @@ const styles = StyleSheet.create({
     textAlign: "center",
     zIndex: 1,
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.7)'
+  },
+  winnerImage: {
+    width: '80%',
+    height: '60%'
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: 'white',
+    borderRadius: 5
+  }
 });

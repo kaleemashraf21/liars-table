@@ -18,6 +18,7 @@ import { Socket } from "./socketConfig";
 import { useLocalSearchParams } from "expo-router";
 import { Card } from "@/@types/playerHand";
 import { User } from "../Contexts/UserContexts";
+import { PlayerHand } from "./PlayerHand";
 
 const { width } = Dimensions.get("window");
 
@@ -308,6 +309,7 @@ const styles = StyleSheet.create({
     padding: 10,
     elevation: 5,
   },
+
   submitButton: {
     position: "absolute",
     top: -100,
