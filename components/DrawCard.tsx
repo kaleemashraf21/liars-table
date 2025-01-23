@@ -72,7 +72,7 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
           console.log('game started')
         }
       })
-      const player: Card[][] = [[], []];
+      const player: Card[][] = [[], [], [], []];
 
       const deckData = await getNewDeck();
       const deck = await drawCard(deckData.deck_id, 52);
@@ -123,7 +123,7 @@ export const DrawButton: React.FC<DrawButtonProps> = ({ players }) => {
   return (
     <View>
               <View>
-      {inProgress === false && players.length === 2 ? (
+      {inProgress === false && players.length === 4 ? (
         <TouchableOpacity onPress={handlePress}>
           <View style={styles.container}>
             <Text style={styles.text}>Start</Text>
