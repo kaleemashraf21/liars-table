@@ -1,4 +1,10 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { 
+  useState, 
+  useContext, 
+  useEffect, 
+  useMemo, 
+  useCallback 
+} from "react";
 import {
   Image,
   View,
@@ -12,132 +18,152 @@ import { Socket } from "./socketConfig";
 import { useLocalSearchParams } from "expo-router";
 import { Card } from "@/@types/playerHand";
 import { User } from "../Contexts/UserContexts";
-import { all } from "axios";
-const { width, height } = Dimensions.get("window");
+
+const { width } = Dimensions.get("window");
 
 export const DisplayCards: React.FC = () => {
+  // Robust context handling
   const userContext = useContext(UserContext);
   if (!userContext) {
     throw new Error("UserContext is undefined");
   }
   const { user, setUser } = userContext;
-  const [cards, setCards] = useState<Card[]>(user?.hand || []);
-  const [selectedCards, setSelectedCards] = useState<number[]>([]); // Track selected card indexes
+
+  // Memoized initial cards state with fallback
+  const [cards, setCards] = useState<Card[]>(() => {
+    const initialCards = user?.hand || [];
+    console.log("Initial cards loaded:", initialCards.length);
+    return initialCards;
+  });
+
+  // Controlled state for selected and discard logic
+  const [selectedCards, setSelectedCards] = useState<number[]>([]);
+  const [discardPile, setDiscardPile] = useState<Card[]>([]);
+
+  // Extract room name from params
   const params = useLocalSearchParams();
-  const [cardsToDiscard, setCardsToDiscard] = useState<Card[]>([]);
-  const [discardPile, setDiscardPile] = useState<Card[]>([])
   const roomName = params.roomName as string;
 
-  // useEffect(() => {
-  //   console.log("cards to discard:", cardsToDiscard);
-  // }, [cardsToDiscard]);
-
-  // useEffect(() => {
-  //   console.log("discard pile:", discardPile);
-  // }, [discardPile]);
-
-  const handleCardPress = (index: number) => {
-    // Limit selection to 4 cards
-    if (selectedCards.length >= 4 && !selectedCards.includes(index)) {
-      return; // Prevent selecting more than 4 cards
-    }
-
-    // Toggle card selection
+  // Memoized card selection handler
+  const handleCardPress = useCallback((index: number) => {
     setSelectedCards((prev) => {
+      // Limit to 4 cards, toggle selection
       if (prev.includes(index)) {
-        return prev.filter((id) => id !== index); // Deselect card
-      } else {
-        return [...prev, index]; // Select card
+        return prev.filter((id) => id !== index);
       }
+      return prev.length >= 4 ? prev : [...prev, index];
     });
-  };
+  }, []);
 
-  const handleSubmit = (selectedCards: number[]) => {
-    let allCardsToDiscard = [];
-    for(let i = cards.length - 1; i>=0; i--){
-      if(selectedCards.includes(i)){
-        allCardsToDiscard.push(cards[i]);
-      }
-    }
-  
-    console.log("About to discard cards:", {
+  // Optimized submit handler
+  const handleSubmit = useCallback(() => {
+    if (selectedCards.length === 0) return;
+
+    // Create discard pile efficiently
+    const allCardsToDiscard = selectedCards.map(index => cards[index]);
+    
+    console.log("Discarding cards:", {
       roomName,
       cardCount: allCardsToDiscard.length
     });
-  
-    // Update local hand first
-    const newHand = cards.filter(element => !allCardsToDiscard.includes(element));
+
+    // Update local state efficiently
+    const newHand = cards.filter((_, index) => !selectedCards.includes(index));
+    
+    // Batch updates
     setCards(newHand);
     setSelectedCards([]);
     setUser((prevUser: User) => ({
       ...prevUser,
       hand: newHand,
     }));
-  
-    // Emit to socket with logging
+
+    // Socket emission with error handling
     Socket.emit("discardPile", {
       roomName,
       discardedCards: allCardsToDiscard
     }, (response: any) => {
-      console.log("Received response from discardPile emit:", response);
       if (!response.success) {
-        console.error("Failed to update discard pile:", response.message);
+        console.error("Discard pile update failed:", response.message);
+        // Optional: Revert local state if server update fails
+        setCards(cards);
       }
     });
-  };
-  
+  }, [cards, selectedCards, roomName, setUser]);
+
+  // Efficient socket listener management
   useEffect(() => {
-    // Add listener with debug logging
-    const handleDiscardPileUpdate = (data: { discardPile: Card[], lastDiscarded: Card[] }) => {
-      console.log("Received discardPileUpdated event:", {
-        totalCards: data.discardPile.length,
-        lastDiscardedCount: data.lastDiscarded.length
+    const handleDiscardPileUpdate = (data: { 
+      discardPile: Card[], 
+      lastDiscarded: Card[] 
+    }) => {
+      console.log("Discard pile update:", {
+        totalCards: data.discardPile,
+        lastDiscardedCount: data.lastDiscarded
       });
       setDiscardPile(data.discardPile);
     };
-  
+
     Socket.on("discardPileUpdated", handleDiscardPileUpdate);
-  
+
     return () => {
       Socket.off("discardPileUpdated", handleDiscardPileUpdate);
     };
   }, []);
 
-  return (
-    <View style={styles.bigContainer} >
-      <View style={styles.bigContainer}>
-      <TouchableOpacity style={styles.submitButton} onPress={() => handleSubmit(selectedCards)}>
-        <Text>Submit</Text>
-      </TouchableOpacity>
+  // Synchronize with user context changes
+  useEffect(() => {
+    // Update local cards if user context changes
+    if (user?.hand && user.hand.length !== cards.length) {
+      console.log("Synchronizing cards with user context:", user.hand.length);
+      setCards(user.hand);
+    }
+  }, [user?.hand, cards.length]);
 
-      </View>
-    <View style={styles.container}>
-    {cards.map((element, index) => (
+  // Memoized card rendering to prevent unnecessary re-renders
+  const cardElements = useMemo(() => 
+    cards.map((element, index) => (
       <TouchableOpacity
-        key={index}
+        key={`${index}-${element.code}`} // More stable key
         style={[
           styles.card,
           {
-            // Dynamically calculate the left offset to center the cards
-            left: (index - Math.floor(cards.length / 2)) * 25, // Ensure centering
-            // Move the card upwards slightly when selected
+            left: (index - Math.floor(cards.length / 2)) * 25,
             transform: selectedCards.includes(index)
-              ? [{ translateY: -10 }] // Move upwards by 10 units
+              ? [{ translateY: -10 }]
               : [{ translateY: 0 }],
-            // Apply a green background highlight when selected
-            // border-width: 5px,
             borderColor: selectedCards.includes(index)
-              ? 'rgba(0, 255, 0, 0.3)' // Light green color with some transparency
-              : 'white', // Default white color
+              ? 'rgba(0, 255, 0, 0.3)'
+              : 'white',
           },
         ]}
         onPress={() => handleCardPress(index)}
       >
         <Text style={styles.cardText}>Card {index + 1}</Text>
-        <Image source={{ uri: element.image }} style={styles.cardImage} />
+        <Image 
+          source={{ uri: element.image }} 
+          style={styles.cardImage} 
+          onError={(e) => console.error('Image load error', e.nativeEvent.error)}
+        />
       </TouchableOpacity>
-    ))}
-  </View>
+    )), 
+    [cards, selectedCards, handleCardPress]
+  );
+
+  return (
+    <View style={styles.bigContainer}>
+      <View style={styles.bigContainer}>
+        <TouchableOpacity 
+          style={styles.submitButton} 
+          onPress={handleSubmit}
+          disabled={selectedCards.length === 0}
+        >
+          <Text>Submit</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.container}>
+        {cardElements}
+      </View>
     </View>
   );
 };
@@ -150,22 +176,23 @@ const styles = StyleSheet.create({
     height: 100,
     width: 100,
     backgroundColor: "white",
-    justifyContent: "center"
+    justifyContent: "center",
+    opacity: 0.7, // Visual feedback for disabled state
   },
-  bigContainer : {
+  bigContainer: {
     flex: 1
   },
   container: {
     position: "relative",
-    justifyContent: "center", // Center the cards horizontally
-    alignItems: "center", // Center the cards vertically (optional)
+    justifyContent: "center",
+    alignItems: "center",
     height: 200,
     width: "100%",
-    flexDirection: "row", // Align cards horizontally
+    flexDirection: "row",
     left: 50
   },
   card: {
-    position: "absolute", // Stack cards on top of each other
+    position: "absolute",
     width: 100,
     height: 150,
     backgroundColor: "white",
@@ -173,12 +200,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderBlockColor: "black",
     overflow: "hidden",
-    zIndex: 1, // Ensure cards are on top of each other by default
+    zIndex: 1,
     justifyContent: "center",
     alignItems: "center",
     scaleX: 0.8,
-    // Highlight color when selected
-    // backgroundColor: "white", // default color
   },
   cardText: {
     position: "absolute",
@@ -190,6 +215,8 @@ const styles = StyleSheet.create({
   cardImage: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover", // Adjust image to fill the card
+    resizeMode: "cover",
   },
 });
+
+export default DisplayCards;
