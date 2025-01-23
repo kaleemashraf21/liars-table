@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Animated,
+  Image,
 } from "react-native";
 import { Socket } from "./socketConfig";
 import { DrawButton } from "./DrawCard";
@@ -48,14 +49,39 @@ const PlayerSlot: React.FC<{
   player: Player | null;
   position: string;
 }> = ({ player, position }) => {
+  const getAvatarContainerColor = () => {
+    switch (position) {
+      case "top":
+        return "#FF6347"; // Red
+      case "right":
+        return "#4682B4"; // Blue
+      case "left":
+        return "#32CD32"; // Green
+      case "bottom":
+        return "#FFD700"; // Yellow
+      default:
+        return "#D3D3D3"; // Gray for empty slot
+    }
+  };
   return (
     <View style={styles.playerSlot}>
-      <Text style={styles.playerName}>
-        {player ? player.username : `Empty ${position}`}
-      </Text>
-      <View>
-        <Text>Cards</Text>
+      {/* Avatar Container */}
+      <View
+        style={[
+          styles.avatarContainer,
+          { backgroundColor: getAvatarContainerColor() },
+        ]}
+      >
+        {player && player.avatar ? (
+          <Image source={{ uri: player.avatar }} style={styles.avatar} />
+        ) : (
+          <Icon name="user-circle" size={50} color="#fff" />
+        )}
       </View>
+      {/* Player Name */}
+      <Text style={styles.playerName}>
+        {player ? player.username : `Waiting for player`}
+      </Text>
     </View>
   );
 };
@@ -81,7 +107,6 @@ const PlayingTable: React.FC = () => {
   // setCardCount((playersCardsCount) => {
   //   console.log(playersCardsCount)
   // })
-
 
   useEffect(() => {
     console.log("PlayingTable mounted with roomName:", roomName);
@@ -266,11 +291,9 @@ const PlayingTable: React.FC = () => {
 
   return (
     <View style={styles.container}>
-
-
       {/* Center game area */}
       <View style={styles.deck}>
-        <DrawButton players={players} />{" "}
+        <DrawButton players={players} />
         {/* playersCardsCount={playersCardsCount} */}
         {/* <DeckArea /> */}
       </View>
@@ -288,7 +311,6 @@ const PlayingTable: React.FC = () => {
         <PlayerSlot position="bottom" player={players[2] || null} />
       </View>
 
-
       {/* Right player (second to join) */}
       <View style={styles.right}>
         <PlayerSlot position="right" player={players[1] || null} />
@@ -304,13 +326,13 @@ const PlayingTable: React.FC = () => {
 
       {/* Rules Info Button */}
       <TouchableOpacity style={styles.infoButton} onPress={showModal}>
-        <Icon name="info-circle" size={30} color="white" />
+        <Icon name="info-circle" size={30} />
       </TouchableOpacity>
 
       {/* Rules Modal */}
 
       <TouchableOpacity style={styles.leaveRoomButton} onPress={leaveRoom}>
-        <Ionicons name="log-out-outline" size={24} />
+        <Ionicons name="log-out-outline" size={30} />
       </TouchableOpacity>
 
       {/* Modal for Game Rules */}
@@ -342,21 +364,27 @@ const styles = StyleSheet.create({
   },
   playerSlot: {
     position: "absolute",
-    backgroundColor: "#4B5563",
-    padding: 16,
-    borderRadius: 8,
-    width: 100,
-    height: 100,
     alignItems: "center",
+  },
+  avatarContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 50,
   },
   playerName: {
     color: "white",
     fontWeight: "bold",
-    marginBottom: 8,
+    marginTop: 8,
   },
   deck: {
     position: "absolute",
-    // backgroundColor: "purple",
     width: 100,
     height: 100,
     display: "flex",
@@ -366,8 +394,8 @@ const styles = StyleSheet.create({
     left: width * 0.5 - 50,
   },
   top: {
-    top: height * 0.0,
-    left: width * 0.5 - 50,
+    top: height * 0.05,
+    left: width * 0.5 - 55,
   },
   left: {
     top: height * 0.35,
@@ -379,11 +407,11 @@ const styles = StyleSheet.create({
   },
   bottom: {
     top: height * 0.7,
-    left: width * 0.5 - 50,
+    left: width * 0.5 - 55,
   },
   infoButton: {
     position: "absolute",
-    bottom: 20,
+    bottom: 10,
     right: 20,
     backgroundColor: "#4B5563",
     borderRadius: 50,
@@ -392,7 +420,7 @@ const styles = StyleSheet.create({
   },
   leaveRoomButton: {
     position: "absolute",
-    bottom: 20,
+    bottom: 10,
     left: 20,
     backgroundColor: "#4B5563",
     borderRadius: 50,

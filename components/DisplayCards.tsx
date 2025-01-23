@@ -19,7 +19,7 @@ import { useLocalSearchParams } from "expo-router";
 import { Card } from "@/@types/playerHand";
 import { User } from "../Contexts/UserContexts";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 export const DisplayCards: React.FC = () => {
   // Robust context handling
@@ -40,10 +40,11 @@ export const DisplayCards: React.FC = () => {
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [discardPile, setDiscardPile] = useState<Card[]>([]);
   const [currentPlayerTurn, setCurrentPlayerTurn] = useState<string>("");
-  const [lastTurn, setLastTurn] = useState<any>([])
-  const [needToPlay, setNeedToPlay] = useState<string>('ACE')
-  const [shouldvePlayedLastGo, setShouldvePlayedLastGo] = useState<string>('ACE')
-  const [bullshit, setBullshit] = useState<any>(null)
+  const [lastTurn, setLastTurn] = useState<any>([]);
+  const [needToPlay, setNeedToPlay] = useState<string>("ACE");
+  const [shouldvePlayedLastGo, setShouldvePlayedLastGo] =
+    useState<string>("ACE");
+  const [bullshit, setBullshit] = useState<any>(null);
 
   // Extract room name from params
   const params = useLocalSearchParams();
@@ -103,8 +104,6 @@ export const DisplayCards: React.FC = () => {
     };
   }, [Socket, setCards, setUser]);
 
-
-
   /* winning a game
 
   if socket sends us everyones hands
@@ -123,18 +122,18 @@ export const DisplayCards: React.FC = () => {
   // socket to send/receive card which needs to be played
   useEffect(() => {
     Socket.on("cardToPlay", (card: string) => {
-      setShouldvePlayedLastGo(needToPlay)
+      setShouldvePlayedLastGo(needToPlay);
       // shouldvePlayedLastGo = needToPlay
       // needToPlay = math.random(........)
       setNeedToPlay(card);
-    }), [needToPlay];
-  
+    }),
+      [needToPlay];
+
     // Cleanup listener on component unmount
     return () => {
       Socket.off("cardToPlay");
     };
   }, []);
-  
 
   // Optimized submit handler
   const handleSubmit = useCallback(() => {
@@ -180,8 +179,6 @@ export const DisplayCards: React.FC = () => {
     );
   }, [cards, selectedCards, roomName, setUser]);
 
-
-
   // Efficient socket listener management
   useEffect(() => {
     const handleDiscardPileUpdate = (data: {
@@ -192,14 +189,12 @@ export const DisplayCards: React.FC = () => {
       console.log("Discard pile update:", {
         totalCards: data.discardPile,
         lastDiscarded: data.lastDiscarded,
-        isBullshit: data.isBullshit
+        isBullshit: data.isBullshit,
       });
-      setLastTurn(data.lastDiscarded)
-      setDiscardPile(data.discardPile)
+      setLastTurn(data.lastDiscarded);
+      setDiscardPile(data.discardPile);
       setBullshit(data.isBullshit);
     };
-
-
 
     // set State of last turn setLastTurn(data.lastDiscardedCount)
     Socket.on("discardPileUpdated", handleDiscardPileUpdate);
@@ -270,8 +265,12 @@ export const DisplayCards: React.FC = () => {
 
   return (
     <View style={styles.bigContainer}>
-      <View style={styles.bigContainer}>
-      <Text style={styles.needToPlay}>need to play a: {needToPlay}</Text>
+      <View style={styles.controlSection}>
+        <View style={styles.needToPlayContainer}>
+          <Text style={styles.needToPlayText}>
+            need to play a: {needToPlay}
+          </Text>
+        </View>
         <TouchableOpacity
           style={[
             styles.submitButton,
@@ -287,57 +286,95 @@ export const DisplayCards: React.FC = () => {
             selectedCards.length === 0 || currentPlayerTurn !== Socket.id
           }
         >
-          <Text>Submit</Text>
+          <Text style={styles.submitButtonText}>Submit</Text>
         </TouchableOpacity>
-        {lastTurn.length === 0 ? null : <TouchableOpacity onPress={callBullshit}>
-          <Text style={styles.bullshitButton}>BULLSHIT</Text>
-        </TouchableOpacity>}
+        {lastTurn.length === 0 ? null : (
+          <TouchableOpacity
+            onPress={callBullshit}
+            style={styles.bullshitButton}
+          >
+            <Text style={styles.bullshitButtonText}>BULLSHIT</Text>
+          </TouchableOpacity>
+        )}
       </View>
-      <View style={styles.container}>{cardElements}</View>
+      <View style={styles.cardsContainer}>{cardElements}</View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  bullshitButton: {
-    position: "absolute",
-    bottom: 100,
-    right: 100,
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 10,
-    elevation: 5,
-  },
-  submitButton: {
-    position: "absolute",
-    top: -100,
-    left: 0,
-    height: 100,
-    width: 100,
-    backgroundColor: "white",
-    justifyContent: "center",
-    opacity: 0.7, // Visual feedback for disabled state
-  },
-  needToPlay: {
-    position: "absolute",
-    bottom: 500,
-    right: 20,
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 10,
-    elevation: 5,
-  },
   bigContainer: {
     flex: 1,
+    position: "relative",
   },
-  container: {
+  controlSection: {
+    position: "relative",
+    height: 100,
+    top: -620,
+    zIndex: 100,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  needToPlayContainer: {
+    backgroundColor: "white",
+    position: "relative",
+    top: 20,
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  needToPlayText: {
+    fontWeight: "bold",
+    color: "black",
+    fontSize: 14,
+  },
+  submitButton: {
+    backgroundColor: "#28A745",
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginBottom: 10,
+    position: "relative",
+    bottom: -470,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  submitButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  bullshitButton: {
+    backgroundColor: "red",
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  bullshitButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  cardsContainer: {
     position: "relative",
     justifyContent: "center",
     alignItems: "center",
     height: 200,
     width: "100%",
     flexDirection: "row",
-    left: 50,
+    marginTop: height * 0.3, // Adjust to make room for control section
   },
   card: {
     position: "absolute",
@@ -346,7 +383,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderWidth: 3,
     borderRadius: 10,
-    borderBlockColor: "black",
+    borderColor: "black",
     overflow: "hidden",
     zIndex: 1,
     justifyContent: "center",
