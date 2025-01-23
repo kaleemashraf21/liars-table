@@ -7,18 +7,21 @@ import {
   TextInput,
   TouchableOpacity,
   Pressable,
+  ScrollView,
 } from "react-native";
 import { UserContext } from "../Contexts/UserContexts";
 import { auth } from "../firebaseConfig";
 import { Socket } from "./socketConfig";
 import { router } from "expo-router";
 import Ionicons from "react-native-vector-icons/Ionicons";
+
 interface Room {
   roomName: string;
   playerCount: number;
   isPrivate: boolean;
   password?: string;
 }
+
 const JoinGame = () => {
   const [roomList, setRoomList] = useState<Room[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -27,21 +30,27 @@ const JoinGame = () => {
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
   const [isLogoutVisible, setIsLogoutVisible] = useState(false);
   const userContext = useContext(UserContext);
+
   if (!userContext) {
     throw new Error("UserContext is undefined");
   }
+
   const { user, setUser } = userContext;
+
   useEffect(() => {
     if (Socket.connected) {
       Socket.emit("requestActiveRooms");
     }
+
     Socket.on("activeRooms", (availableRooms: Room[]) => {
       setRoomList(availableRooms);
     });
+
     return () => {
       Socket.off("activeRooms");
     };
   }, []);
+
   const handleJoinRoom = (room: Room) => {
     if (room.isPrivate) {
       setSelectedRoom(room);
@@ -50,6 +59,7 @@ const JoinGame = () => {
       attemptJoinRoom(room.roomName, null);
     }
   };
+
   const attemptJoinRoom = (roomName: string, password: string | null) => {
     if (user === null) {
       console.error("User data is missing. Cannot join room.");
@@ -75,6 +85,7 @@ const JoinGame = () => {
       }
     );
   };
+
   const handlePasswordSubmit = () => {
     if (selectedRoom) {
       attemptJoinRoom(selectedRoom.roomName, password);
@@ -82,18 +93,22 @@ const JoinGame = () => {
       setIsPasswordModalVisible(false);
     }
   };
+
   const handleLogOut = async () => {
     Socket.disconnect();
     await auth.signOut();
     setUser(null);
     router.push("/signin");
   };
+
   const handleRefresh = () => {
     Socket.emit("requestActiveRooms");
   };
+
   const toggleLogoutVisibility = () => {
     setIsLogoutVisible((prevState) => !prevState);
   };
+
   return (
     <View style={styles.container}>
       {/* Back Icon at top-right corner */}
@@ -103,6 +118,7 @@ const JoinGame = () => {
       >
         <Ionicons name="arrow-back-circle-outline" size={40} color="#333" />
       </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.avatarContainer}
         onPress={toggleLogoutVisibility}
@@ -118,7 +134,9 @@ const JoinGame = () => {
           </TouchableOpacity>
         </View>
       )}
+
       <Text style={styles.title}>Available Rooms</Text>
+
       {/* Game Room Dropdown */}
       <Pressable
         style={styles.dropdownHeader}
@@ -128,28 +146,33 @@ const JoinGame = () => {
           Select a Game Room ({roomList.length} available)
         </Text>
       </Pressable>
+
       {/* Available Rooms List */}
       {isDropdownOpen && (
         <View style={styles.dropdownContent}>
           {roomList.length > 0 ? (
-            roomList.map((room, index) => (
-              <Pressable
-                key={index}
-                style={styles.roomItem}
-                onPress={() => handleJoinRoom(room)}
-              >
-                <Text style={styles.roomName}>{room.roomName}</Text>
-                <Text style={styles.roomInfo}>
-                  Players: {room.playerCount}/4 •{" "}
-                  {room.isPrivate ? "Private" : "Public"}
-                </Text>
-              </Pressable>
-            ))
+            <ScrollView style={styles.scrollView}>
+              {/* Display all rooms */}
+              {roomList.map((room, index) => (
+                <Pressable
+                  key={index}
+                  style={styles.roomItem}
+                  onPress={() => handleJoinRoom(room)}
+                >
+                  <Text style={styles.roomName}>{room.roomName}</Text>
+                  <Text style={styles.roomInfo}>
+                    Players: {room.playerCount}/4 •{" "}
+                    {room.isPrivate ? "Private" : "Public"}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
           ) : (
             <Text style={styles.noRooms}>No rooms available</Text>
           )}
         </View>
       )}
+
       {/* Button Container (Buttons below the room list) */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -165,6 +188,7 @@ const JoinGame = () => {
           <Text style={styles.buttonText}>Create New Game</Text>
         </TouchableOpacity>
       </View>
+
       {/* Password Modal */}
       <Modal
         visible={isPasswordModalVisible}
@@ -202,6 +226,7 @@ const JoinGame = () => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -263,8 +288,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ddd",
-    maxHeight: 300,
     width: "100%",
+  },
+  scrollView: {
+    height: 300, // Max height for the dropdown before scrolling begins
   },
   roomItem: {
     padding: 15,
@@ -345,4 +372,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
 export default JoinGame;
