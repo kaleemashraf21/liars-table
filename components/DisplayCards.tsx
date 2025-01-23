@@ -294,7 +294,8 @@ export const DisplayCards: React.FC = () => {
             onPress={callBullshit}
             style={styles.bullshitButton}
           >
-            <Text style={styles.bullshitButtonText}>BULLSHIT</Text>
+            <Image source={require("../assets/images/bull.png")} />
+            <Text style={styles.bullshitButtonText}>BULLSH!T</Text>
           </TouchableOpacity>
         )}
       </View>
