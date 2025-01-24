@@ -7,15 +7,7 @@ const connectionOptions = {
 export const Socket = io(
   "https://liars-table-be.onrender.com",
   connectionOptions
-); // replace ip address
-
-// https://liars-table-be.onrender.com
-// http://172.21.88.100
-// http://192.168.0.19:8080
-// const port = process.env.PORT || 8080;
-// server.listen(port, () => {
-//   console.log(`Server running on port ${port}`);
-// });
+);
 
 Socket.connect();
 
