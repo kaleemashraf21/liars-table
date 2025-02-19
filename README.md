@@ -6,7 +6,13 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Technology used
 
-React Native, Typescript, Node.js, Socket.io, Firebase, Render, MongoDB
+- React Native
+- Typescript
+- Node.js
+- Socket.io
+- Firebase
+- Render
+- MongoDB
 
 ## Get started
 
